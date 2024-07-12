@@ -14,9 +14,6 @@
   "icon": "assets/wheatsync/icon.png",
   "environment": "*",
   "entrypoints": {
-    "client": [
-      "top.rookiestwo.wheatsync.client.WheatServerSyncClient"
-    ],
     "main": [
       "top.rookiestwo.wheatsync.WheatServerSync"
     ]
