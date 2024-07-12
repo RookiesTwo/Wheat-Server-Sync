@@ -17,10 +17,13 @@ public class WheatServerSync implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        //配置文件
         CONFIG_MANAGER = new ConfigManager();
         CONFIG=CONFIG_MANAGER.getConfig();
 
-        WheatServerSyncRegistry.Register();
+        //注册
+        WheatServerSyncRegistry.registerBlocks();
+        WheatServerSyncRegistry.registerBlockEntities();
 
         //LOGGER.info("WheatServerSync initialized.");
     }
