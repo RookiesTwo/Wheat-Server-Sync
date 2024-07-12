@@ -26,6 +26,9 @@ public class ConfigManager {
 
     private void loadConfig(){
         try{
+            if(!Files.exists(CONFIG_PATH.getParent())){
+                Files.createDirectories(CONFIG_PATH.getParent());
+            }
             if(!Files.exists(CONFIG_PATH)){
                 Files.createFile(CONFIG_PATH);
                 config=new WheatSyncConfig();

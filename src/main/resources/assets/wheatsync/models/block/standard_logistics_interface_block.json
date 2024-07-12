@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "wheatsync:block/standard_logistics_interface_block"
+  }
+}

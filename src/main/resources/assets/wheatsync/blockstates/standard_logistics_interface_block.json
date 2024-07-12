@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "wheatsync:block/standard_logistics_interface_block" }
+  }
+}
