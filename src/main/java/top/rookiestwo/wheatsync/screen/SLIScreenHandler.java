@@ -7,7 +7,7 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
-import top.rookiestwo.wheatsync.WheatServerSync;
+import top.rookiestwo.wheatsync.WheatServerSyncRegistry;
 
 
 //SLI is short of StandardLogisticsInterface.
@@ -19,7 +19,7 @@ public class SLIScreenHandler extends ScreenHandler {
     }
 
     public SLIScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
-        super(WheatServerSync.SLI_SCREEN_HANDLER, syncId);
+        super(WheatServerSyncRegistry.SLI_SCREEN_HANDLER, syncId);
         checkSize(inventory, 9);
         this.inventory = inventory;
         //some inventories do custom logic when a player opens it.
