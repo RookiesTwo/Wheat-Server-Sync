@@ -20,7 +20,7 @@ public class SLIScreenHandler extends ScreenHandler {
 
     public SLIScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
         super(WheatServerSyncRegistry.SLI_SCREEN_HANDLER, syncId);
-        checkSize(inventory, 9);
+        checkSize(inventory, 5);
         this.inventory = inventory;
         //some inventories do custom logic when a player opens it.
         inventory.onOpen(playerInventory.player);
@@ -29,7 +29,7 @@ public class SLIScreenHandler extends ScreenHandler {
         int l;//width
         //SLI inventory
         for (m = 0; m < 1; ++m) {
-            for (l = 0; l < 3; ++l) {
+            for (l = 0; l < 5; ++l) {
                 this.addSlot(new Slot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
             }
         }

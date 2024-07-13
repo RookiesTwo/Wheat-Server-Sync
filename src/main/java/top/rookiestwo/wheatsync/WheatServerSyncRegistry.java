@@ -11,6 +11,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
+import top.rookiestwo.wheatsync.block.StandardLogisticsInterface;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
 
@@ -18,31 +19,47 @@ public class WheatServerSyncRegistry {
 
     private static final String MOD_ID = WheatServerSync.MOD_ID;
 
+    public static final Identifier SLI = new Identifier(MOD_ID, "standard_logistics_interface_block");
     //blocks
-    public static Block STANDARD_LOGISTICS_INTERFACE_BLOCK = new Block(FabricBlockSettings.create().strength(4.0f));
+    public static Block STANDARD_LOGISTICS_INTERFACE_BLOCK;
 
     //block entities
     public static BlockEntityType<StandardLogisticsInterfaceEntity> STANDARD_LOGISTICS_INTERFACE_BLOCK_ENTITY;
 
     //screen handlers
     public static ScreenHandlerType<SLIScreenHandler> SLI_SCREEN_HANDLER;
+    //block items
+    public static BlockItem STANDARD_LOGISTICS_INTERFACE_BLOCK_ITEM;
 
     //register
     public static void registerBlocks(){
-        Registry.register(Registries.BLOCK, new Identifier(MOD_ID, "standard_logistics_interface_block"), STANDARD_LOGISTICS_INTERFACE_BLOCK);
-        Registry.register(Registries.ITEM, new Identifier(MOD_ID, "standard_logistics_interface_block"), new BlockItem(STANDARD_LOGISTICS_INTERFACE_BLOCK,new Item.Settings()));
+        STANDARD_LOGISTICS_INTERFACE_BLOCK = Registry.register(
+                Registries.BLOCK,
+                SLI,
+                new StandardLogisticsInterface(FabricBlockSettings.copyOf(net.minecraft.block.Blocks.CHEST))
+        );
+        STANDARD_LOGISTICS_INTERFACE_BLOCK_ITEM = Registry.register(
+                Registries.ITEM,
+                SLI,
+                new BlockItem(STANDARD_LOGISTICS_INTERFACE_BLOCK, new Item.Settings())
+        );
     }
 
     public static void registerBlockEntities(){
         STANDARD_LOGISTICS_INTERFACE_BLOCK_ENTITY = Registry.register(
                 Registries.BLOCK_ENTITY_TYPE,
-                new Identifier(MOD_ID, "standard_logistics_interface_block"),
-                FabricBlockEntityTypeBuilder.create(StandardLogisticsInterfaceEntity::new,STANDARD_LOGISTICS_INTERFACE_BLOCK).build()
+                SLI,
+                FabricBlockEntityTypeBuilder.create(StandardLogisticsInterfaceEntity::new, STANDARD_LOGISTICS_INTERFACE_BLOCK).build(null)
         );
     }
 
-    public static void registerScreenHandler() {
-        SLI_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(new Identifier(MOD_ID, "sli_screen_handler"), SLIScreenHandler::new);
+    public static void registerAll() {
+        registerBlocks();
+        registerBlockEntities();
+        registerScreenHandler();
     }
 
+    public static void registerScreenHandler() {
+        SLI_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(SLI, SLIScreenHandler::new);
+    }
 }

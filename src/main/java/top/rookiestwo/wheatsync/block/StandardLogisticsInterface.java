@@ -1,6 +1,5 @@
 package top.rookiestwo.wheatsync.block;
 
-import net.minecraft.block.BlockEntityProvider;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
@@ -20,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import top.rookiestwo.wheatsync.WheatServerSync;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
 
-public class StandardLogisticsInterface extends BlockWithEntity implements BlockEntityProvider {
+public class StandardLogisticsInterface extends BlockWithEntity {
 
     private LivingEntity blockPlacer = null;
 
@@ -79,7 +78,7 @@ public class StandardLogisticsInterface extends BlockWithEntity implements Block
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        WheatServerSync.LOGGER.info("SLI Placed!");
+        //WheatServerSync.LOGGER.info("SLI Placed!");
         blockPlacer=placer;
     }
 

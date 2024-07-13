@@ -7,6 +7,7 @@ import top.rookiestwo.wheatsync.config.ConfigManager;
 import top.rookiestwo.wheatsync.config.WheatSyncConfig;
 
 
+
 public class WheatServerSync implements ModInitializer {
 
     public static final String MOD_ID = "wheatsync";
@@ -14,6 +15,10 @@ public class WheatServerSync implements ModInitializer {
     public static ConfigManager CONFIG_MANAGER = null;
     public static WheatSyncConfig CONFIG=null;
 
+    static {
+        //注册
+        WheatServerSyncRegistry.registerAll();
+    }
 
     @Override
     public void onInitialize() {
@@ -22,11 +27,7 @@ public class WheatServerSync implements ModInitializer {
         CONFIG_MANAGER = new ConfigManager();
         CONFIG=CONFIG_MANAGER.getConfig();
 
-        //注册
-        WheatServerSyncRegistry.registerBlocks();
-        WheatServerSyncRegistry.registerBlockEntities();
-        WheatServerSyncRegistry.registerScreenHandler();
-
         LOGGER.info("WheatSync Initialized.");
     }
+
 }
