@@ -15,9 +15,9 @@ import top.rookiestwo.wheatsync.block.StandardLogisticsInterface;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
 
-public class WheatServerSyncRegistry {
+public class WheatSyncRegistry {
 
-    private static final String MOD_ID = WheatServerSync.MOD_ID;
+    private static final String MOD_ID = WheatSync.MOD_ID;
 
     public static final Identifier SLI = new Identifier(MOD_ID, "standard_logistics_interface_block");
     //blocks

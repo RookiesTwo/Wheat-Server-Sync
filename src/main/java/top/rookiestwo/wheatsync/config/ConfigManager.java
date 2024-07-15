@@ -4,9 +4,8 @@ package top.rookiestwo.wheatsync.config;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.Logger;
-import top.rookiestwo.wheatsync.WheatServerSync;
+import top.rookiestwo.wheatsync.WheatSync;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -16,7 +15,7 @@ import java.nio.file.Path;
 public class ConfigManager {
     private static final Path CONFIG_PATH = Path.of("config/wheatsync.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final Logger LOGGER = WheatServerSync.LOGGER;
+    private static final Logger LOGGER = WheatSync.LOGGER;
 
     private WheatSyncConfig config;
 

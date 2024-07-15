@@ -7,12 +7,12 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import top.rookiestwo.wheatsync.WheatServerSync;
+import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
 
 public class SLIScreen extends HandledScreen<SLIScreenHandler> {
 
-    private static final Identifier TEXTURE = new Identifier(WheatServerSync.MOD_ID, "textures/gui/container/standard_logistics_interface.png");
+    private static final Identifier TEXTURE = new Identifier(WheatSync.MOD_ID, "textures/gui/container/standard_logistics_interface.png");
 
     public SLIScreen(SLIScreenHandler handler, PlayerInventory inventory, Text title) {
         super(handler, inventory, title);

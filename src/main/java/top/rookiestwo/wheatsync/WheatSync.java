@@ -7,8 +7,7 @@ import top.rookiestwo.wheatsync.config.ConfigManager;
 import top.rookiestwo.wheatsync.config.WheatSyncConfig;
 
 
-
-public class WheatServerSync implements ModInitializer {
+public class WheatSync implements ModInitializer {
 
     public static final String MOD_ID = "wheatsync";
     public static final Logger LOGGER= LogManager.getLogger("WheatServerSync");
@@ -17,7 +16,7 @@ public class WheatServerSync implements ModInitializer {
 
     static {
         //注册
-        WheatServerSyncRegistry.registerAll();
+        WheatSyncRegistry.registerAll();
     }
 
     @Override

@@ -14,7 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
-import top.rookiestwo.wheatsync.WheatServerSyncRegistry;
+import top.rookiestwo.wheatsync.WheatSyncRegistry;
 import top.rookiestwo.wheatsync.api.LogisticsInterfaceInventory;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
 
@@ -29,7 +29,7 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Nam
     private UUID BLOCK_PLACER;
 
     public StandardLogisticsInterfaceEntity(BlockPos pos, BlockState state, LivingEntity placer) {
-        super(WheatServerSyncRegistry.STANDARD_LOGISTICS_INTERFACE_BLOCK_ENTITY, pos, state);
+        super(WheatSyncRegistry.STANDARD_LOGISTICS_INTERFACE_BLOCK_ENTITY, pos, state);
 
         if(placer instanceof PlayerEntity){
             BLOCK_PLACER=placer.getUuid();
@@ -37,7 +37,7 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Nam
     }
 
     public StandardLogisticsInterfaceEntity(BlockPos pos, BlockState state) {
-        super(WheatServerSyncRegistry.STANDARD_LOGISTICS_INTERFACE_BLOCK_ENTITY, pos, state);
+        super(WheatSyncRegistry.STANDARD_LOGISTICS_INTERFACE_BLOCK_ENTITY, pos, state);
         BLOCK_PLACER=null;
     }
 

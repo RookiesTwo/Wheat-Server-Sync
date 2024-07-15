@@ -15,10 +15,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "top.rookiestwo.wheatsync.WheatServerSync"
+      "top.rookiestwo.wheatsync.WheatSync"
     ],
     "client": [
-      "top.rookiestwo.wheatsync.client.WheatServerSyncClient"
+      "top.rookiestwo.wheatsync.client.WheatSyncClient"
     ]
   },
   "mixins": [
