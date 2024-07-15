@@ -1,5 +1,9 @@
 {
   "block.wheatsync.inter_server_portal_stone": "跨界传送石",
   "block.wheatsync.standard_logistics_interface_block": "标准物流接口",
-  "block.wheatsync.unnamed_standard_logistics_interface": "未命名标准物流接口"
+  "block.wheatsync.unnamed_standard_logistics_interface": "未命名标准物流接口",
+  "title.wheatsync.standard_logistics_interface_placer": "方块放置者: ",
+  "text.wheatsync.sli_set_communicationID_button": "设置ID",
+  "tooltip.wheatsync.sli_set_communicationID_button": "设置标准物流接口的通讯ID, 不同服务器中相同ID和放置者的容器将会互相同步.",
+  "hint.wheatsync.sli_communicationID_input_box": "1~65535 整数"
 }

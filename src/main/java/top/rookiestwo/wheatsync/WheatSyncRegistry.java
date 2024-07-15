@@ -54,7 +54,7 @@ public class WheatSyncRegistry {
     }
 
     public static void registerScreenHandler() {
-        SLI_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(SLI, SLIScreenHandler::new);
+        SLI_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(SLI, SLIScreenHandler::new);
     }
 
     public static void registerAll() {

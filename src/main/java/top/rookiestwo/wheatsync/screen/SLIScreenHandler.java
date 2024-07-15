@@ -5,9 +5,12 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
+
+import java.util.UUID;
 
 
 //SLI is short of StandardLogisticsInterface.
@@ -16,8 +19,15 @@ public class SLIScreenHandler extends ScreenHandler {
     public static final int SLOT_COUNT = 5;
     private final Inventory inventory;
 
-    public SLIScreenHandler(int syncId, PlayerInventory playerInventory) {
+    private int communicationID;
+    private UUID placerUUID;
+    private String placerID;
+
+    public SLIScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
         this(syncId, playerInventory, new SimpleInventory(SLOT_COUNT));
+        communicationID = buf.readInt();
+        placerUUID = buf.readUuid();
+        placerID = buf.readString();
     }
 
     public SLIScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
@@ -45,6 +55,21 @@ public class SLIScreenHandler extends ScreenHandler {
         for (m = 0; m < 9; ++m) {
             this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 125));
         }
+        communicationID = 0;
+        placerUUID = UUID.randomUUID();
+        placerID = "default";
+    }
+
+    public int getCommunicationID() {
+        return communicationID;
+    }
+
+    public UUID getPlacerUUID() {
+        return placerUUID;
+    }
+
+    public String getPlacerID() {
+        return placerID;
     }
 
     @Override

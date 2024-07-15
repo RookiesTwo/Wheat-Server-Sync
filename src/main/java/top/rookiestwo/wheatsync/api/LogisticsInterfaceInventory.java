@@ -6,6 +6,10 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 
+/**
+ * These codes are from fabric wiki.
+ **/
+
 public interface LogisticsInterfaceInventory extends Inventory {
     /**
      * 从物品列表创建物品栏。
