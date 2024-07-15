@@ -53,13 +53,13 @@ public class WheatServerSyncRegistry {
         );
     }
 
+    public static void registerScreenHandler() {
+        SLI_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(SLI, SLIScreenHandler::new);
+    }
+
     public static void registerAll() {
         registerBlocks();
         registerBlockEntities();
         registerScreenHandler();
-    }
-
-    public static void registerScreenHandler() {
-        SLI_SCREEN_HANDLER = ScreenHandlerRegistry.registerSimple(SLI, SLIScreenHandler::new);
     }
 }

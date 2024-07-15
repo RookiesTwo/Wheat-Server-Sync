@@ -12,15 +12,17 @@ import top.rookiestwo.wheatsync.WheatServerSyncRegistry;
 
 //SLI is short of StandardLogisticsInterface.
 public class SLIScreenHandler extends ScreenHandler {
+
+    public static final int SLOT_COUNT = 5;
     private final Inventory inventory;
 
     public SLIScreenHandler(int syncId, PlayerInventory playerInventory) {
-        this(syncId, playerInventory, new SimpleInventory(5));
+        this(syncId, playerInventory, new SimpleInventory(SLOT_COUNT));
     }
 
     public SLIScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
         super(WheatServerSyncRegistry.SLI_SCREEN_HANDLER, syncId);
-        checkSize(inventory, 5);
+        checkSize(inventory, SLOT_COUNT);
         this.inventory = inventory;
         //some inventories do custom logic when a player opens it.
         inventory.onOpen(playerInventory.player);
@@ -29,19 +31,19 @@ public class SLIScreenHandler extends ScreenHandler {
         int l;//width
         //SLI inventory
         for (m = 0; m < 1; ++m) {
-            for (l = 0; l < 5; ++l) {
-                this.addSlot(new Slot(inventory, l + m * 3, 62 + l * 18, 17 + m * 18));
+            for (l = 0; l < SLOT_COUNT; ++l) {
+                this.addSlot(new Slot(inventory, l + m * 3, 44 + l * 18, 36 + m * 18));
             }
         }
         //The player inventory
         for (m = 0; m < 3; ++m) {
             for (l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(playerInventory, l + m * 9 + 9, 8 + l * 18, 84 + m * 18));
+                this.addSlot(new Slot(playerInventory, l + m * 9 + 9, 8 + l * 18, 67 + m * 18));
             }
         }
         //The player Hotbar
         for (m = 0; m < 9; ++m) {
-            this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 142));
+            this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 125));
         }
     }
 
