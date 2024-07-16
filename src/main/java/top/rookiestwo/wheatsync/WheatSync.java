@@ -20,6 +20,7 @@ public class WheatSync implements ModInitializer {
     static {
         //注册
         WheatSyncRegistry.registerAll();
+        WheatSyncRegistry.registerServerPacketReceiver();
     }
 
     @Override

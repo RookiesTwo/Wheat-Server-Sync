@@ -9,6 +9,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
+import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
 
 import java.util.UUID;
 
@@ -22,6 +23,7 @@ public class SLIScreenHandler extends ScreenHandler {
     private int communicationID;
     private UUID placerUUID;
     private String placerID;
+    private StandardLogisticsInterfaceEntity SLIEntity;
 
     public SLIScreenHandler(int syncId, PlayerInventory playerInventory, PacketByteBuf buf) {
         this(syncId, playerInventory, new SimpleInventory(SLOT_COUNT));
@@ -31,12 +33,17 @@ public class SLIScreenHandler extends ScreenHandler {
     }
 
     public SLIScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory) {
+        this(syncId, playerInventory, new SimpleInventory(SLOT_COUNT), null);
+    }
+
+    public SLIScreenHandler(int syncId, PlayerInventory playerInventory, Inventory inventory, StandardLogisticsInterfaceEntity SLIEntity) {
         super(WheatSyncRegistry.SLI_SCREEN_HANDLER, syncId);
         checkSize(inventory, SLOT_COUNT);
-        this.inventory = inventory;
-        //some inventories do custom logic when a player opens it.
-        inventory.onOpen(playerInventory.player);
 
+        this.SLIEntity = SLIEntity;
+        this.inventory = inventory;
+
+        inventory.onOpen(playerInventory.player);
         int m;//height
         int l;//width
         //SLI inventory
@@ -60,6 +67,12 @@ public class SLIScreenHandler extends ScreenHandler {
         placerID = "default";
     }
 
+    public boolean setNewCommunicationID(int newID) {
+        if (newID == communicationID || newID == 0) return false;
+        communicationID = newID;
+        return true;
+    }
+
     public int getCommunicationID() {
         return communicationID;
     }
@@ -70,6 +83,10 @@ public class SLIScreenHandler extends ScreenHandler {
 
     public String getPlacerID() {
         return placerID;
+    }
+
+    public StandardLogisticsInterfaceEntity getSLIEntity() {
+        return SLIEntity;
     }
 
     @Override

@@ -45,12 +45,15 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
         BLOCK_PLACER = null;
     }
 
+    public void setCommunicationID(int communicationID) {
+        CommunicationID = communicationID;
+        this.writeNbt(new NbtCompound());
+    }
+
     @Nullable
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
-        // 因为我们的类实现 Inventory，所以将*这个*提供给 ScreenHandler
-        // 一开始只有服务器拥有物品栏，然后在 ScreenHandler 中同步给客户端
-        return new SLIScreenHandler(syncId, playerInventory, this);
+        return new SLIScreenHandler(syncId, playerInventory, this, this);
     }
 
     @Override

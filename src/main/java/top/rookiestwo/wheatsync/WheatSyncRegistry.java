@@ -1,5 +1,6 @@
 package top.rookiestwo.wheatsync;
 
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
@@ -55,6 +56,17 @@ public class WheatSyncRegistry {
 
     public static void registerScreenHandler() {
         SLI_SCREEN_HANDLER = ScreenHandlerRegistry.registerExtended(SLI, SLIScreenHandler::new);
+    }
+
+    public static void registerServerPacketReceiver() {
+        ServerPlayNetworking.registerGlobalReceiver(new Identifier(WheatSync.MOD_ID, "set_communication_id"), (server, player, handler, buf, responseSender) -> {
+            int newID = buf.readInt();
+            server.execute(() -> {
+                SLIScreenHandler screenHandler = (SLIScreenHandler) player.currentScreenHandler;
+                screenHandler.getSLIEntity().setCommunicationID(newID);
+                WheatSync.LOGGER.info("Communication ID set to " + newID);
+            });
+        });
     }
 
     public static void registerAll() {
