@@ -14,7 +14,7 @@ public class DataBaseIOManager {
 
     public static Queue<CreateSLIRequest> createSLIRequestQueue;
     public static Queue<UpdateInventoryRequest> updateInventoryRequestQueue;
-    public static Queue<DeleteSLIRequest> DeleteSLIRequestQueue;
+    public static Queue<DeleteSLIRequest> deleteSLIRequestQueue;
     public static Queue<ChangeCommunicationIDRequest> changeCommunicationIDRequestQueue;
     public static Queue<GetSLIRequest> getSLIRequestQueue;
 
@@ -27,7 +27,7 @@ public class DataBaseIOManager {
     }
 
     public static void addDeleteSLIRequest(DeleteSLIRequest request) {
-        DeleteSLIRequestQueue.add(request);
+        deleteSLIRequestQueue.add(request);
     }
 
     public static void addChangeCommunicationIDRequest(ChangeCommunicationIDRequest request) {
@@ -44,7 +44,7 @@ public class DataBaseIOManager {
         return nbt.toString();
     }
 
-    public DefaultedList<ItemStack> unSerializeInventory(String inventoryString) {
+    public static DefaultedList<ItemStack> unSerializeInventory(String inventoryString) {
         DefaultedList<ItemStack> tempInv = DefaultedList.ofSize(5, ItemStack.EMPTY);
         try {
             NbtCompound nbt = StringNbtReader.parse(inventoryString);

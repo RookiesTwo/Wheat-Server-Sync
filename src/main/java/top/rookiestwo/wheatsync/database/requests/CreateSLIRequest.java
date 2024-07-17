@@ -1,9 +1,9 @@
 package top.rookiestwo.wheatsync.database.requests;
 
-import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.collection.DefaultedList;
+import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
+import top.rookiestwo.wheatsync.database.DataBaseIOManager;
 
 import java.util.UUID;
 
@@ -12,10 +12,13 @@ public class CreateSLIRequest {
     public int communicationID;
     public String inventory;
 
-    public CreateSLIRequest(UUID playerUUID, int communicationID) {
+    public CreateSLIRequest(StandardLogisticsInterfaceEntity entity) {
+        this(entity.getBLOCK_PLACER(), entity.getCommunicationID(), entity.getInventory());
+    }
+
+    public CreateSLIRequest(UUID playerUUID, int communicationID, DefaultedList<ItemStack> inventory) {
         this.playerUUID = playerUUID;
         this.communicationID = communicationID;
-        NbtCompound nbt = new NbtCompound();
-        this.inventory = Inventories.writeNbt(nbt, DefaultedList.ofSize(5, ItemStack.EMPTY)).toString();
+        this.inventory = DataBaseIOManager.serializeInventory(inventory);
     }
 }

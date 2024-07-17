@@ -16,7 +16,10 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
+import top.rookiestwo.wheatsync.database.DataBaseIOManager;
+import top.rookiestwo.wheatsync.database.requests.DeleteSLIRequest;
 
 public class StandardLogisticsInterface extends BlockWithEntity {
 
@@ -28,7 +31,7 @@ public class StandardLogisticsInterface extends BlockWithEntity {
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return new StandardLogisticsInterfaceEntity(pos,state,blockPlacer);
+        return new StandardLogisticsInterfaceEntity(pos, state, blockPlacer);
     }
 
     @Override
@@ -53,6 +56,9 @@ public class StandardLogisticsInterface extends BlockWithEntity {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof StandardLogisticsInterfaceEntity) {
                 ItemScatterer.spawn(world, pos, (StandardLogisticsInterfaceEntity) blockEntity);
+                DataBaseIOManager.addDeleteSLIRequest(new DeleteSLIRequest());
+                WheatSync.sliCache.removeSLICache((StandardLogisticsInterfaceEntity) blockEntity);
+
                 // 更新比较器
                 world.updateComparators(pos, this);
             }
@@ -73,7 +79,7 @@ public class StandardLogisticsInterface extends BlockWithEntity {
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         //WheatServerSync.LOGGER.info("SLI Placed!");
-        blockPlacer=placer;
+        blockPlacer = placer;
     }
 
 }

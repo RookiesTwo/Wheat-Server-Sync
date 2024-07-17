@@ -5,9 +5,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import top.rookiestwo.wheatsync.config.ConfigManager;
 import top.rookiestwo.wheatsync.config.WheatSyncConfig;
+import top.rookiestwo.wheatsync.database.DataBaseIOTask;
 import top.rookiestwo.wheatsync.database.DatabaseHelper;
 import top.rookiestwo.wheatsync.database.SLICache;
-import top.rookiestwo.wheatsync.events.WheatSyncChunkIOListener;
+import top.rookiestwo.wheatsync.events.ChunkIOListener;
+import top.rookiestwo.wheatsync.events.TickEndEvent;
 
 
 public class WheatSync implements ModInitializer {
@@ -19,12 +21,15 @@ public class WheatSync implements ModInitializer {
 
     public static DatabaseHelper databaseHelper = null;
     public static SLICache sliCache = null;
+    public static DataBaseIOTask dataBaseIOTask = null;
+    public static Thread dataBaseIOTaskThread = null;
 
     static {
         //注册
         WheatSyncRegistry.registerAll();
         WheatSyncRegistry.registerServerPacketReceiver();
-        WheatSyncChunkIOListener.register();
+        ChunkIOListener.register();
+        TickEndEvent.register();
     }
 
     @Override
@@ -37,9 +42,10 @@ public class WheatSync implements ModInitializer {
         //database
         databaseHelper = new DatabaseHelper();
         databaseHelper.fetchAllFromTable("sli_contents");
-
         //创建缓存
         sliCache = new SLICache();
+        dataBaseIOTask = new DataBaseIOTask();
+        dataBaseIOTaskThread = new Thread(dataBaseIOTask);
 
         LOGGER.info("WheatSync Initialized.");
     }

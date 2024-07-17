@@ -1,5 +1,6 @@
 package top.rookiestwo.wheatsync.database;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.database.requests.*;
 
@@ -14,7 +15,7 @@ public class DatabaseHelper {
     private static final String INSERT_SLI_SQL = "INSERT INTO sli_contents (player_uuid, communication_id, inventory) VALUES (?, ?, ?)";
     private static final String DELETE_SLI_SQL = "DELETE FROM sli_contents WHERE player_uuid = ? AND communication_id = ?";
     private static final String UPDATE_COMMUNICATION_ID_SQL = "UPDATE sli_contents SET communication_id = ? WHERE player_uuid = ? AND communication_id = ?";
-
+    private static final String GET_SLI_SQL = "SELECT * FROM sli_contents WHERE player_uuid = ? AND communication_id = ?";
 
     public DatabaseHelper() {
         try {
@@ -107,24 +108,23 @@ public class DatabaseHelper {
         }
     }
 
-    public void processGetSLIRequests(Queue<GetSLIRequest> requests, SLICache cache) throws SQLException {
-        String sql = "SELECT * FROM sli_contents WHERE player_uuid = ? AND communication_id = ?";
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+    public void processGetSLIRequests(Queue<GetSLIRequest> requests) throws SQLException {
+        if (requests.isEmpty()) return;
+        try (PreparedStatement pstmt = connection.prepareStatement(GET_SLI_SQL)) {
             for (GetSLIRequest request : requests) {
-                pstmt.setString(1, request.playerUUID);
+                pstmt.setString(1, request.playerUUID.toString());
                 pstmt.setInt(2, request.communicationID);
                 ResultSet rs = pstmt.executeQuery();
                 while (rs.next()) {
-                    // 假设SLIData构造函数接受playerUUID, communicationID和inventory作为参数
-                    SLIData data = new SLIData(
+                    WheatSync.sliCache.updateSLIInventory(
                             UUID.fromString(rs.getString("player_uuid")),
                             rs.getInt("communication_id"),
                             rs.getString("inventory")
                     );
-                    // 检查并添加到缓存
-                    cache.addSLI(data);
                 }
             }
+        } catch (CommandSyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 
