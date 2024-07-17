@@ -14,7 +14,7 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import top.rookiestwo.wheatsync.block.StandardLogisticsInterface;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
-import top.rookiestwo.wheatsync.database.DataBaseIOManager;
+import top.rookiestwo.wheatsync.database.SLICache;
 import top.rookiestwo.wheatsync.database.requests.ChangeCommunicationIDRequest;
 import top.rookiestwo.wheatsync.database.requests.CreateSLIRequest;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
@@ -70,12 +70,12 @@ public class WheatSyncRegistry {
                 screenHandler.getSLIEntity().setCommunicationID(newID);
                 WheatSync.LOGGER.info("Communication ID set to " + newID);
                 if (oldID == 0) {
-                    DataBaseIOManager.addCreateSLIRequest(new CreateSLIRequest(screenHandler.getSLIEntity()));
+                    SLICache.addCreateSLIRequest(new CreateSLIRequest(screenHandler.getSLIEntity()));
                     WheatSync.sliCache.addSLICache(screenHandler.getSLIEntity());
                     screenHandler.getSLIEntity().markDirty();
                 }
                 if (oldID != 0) {
-                    DataBaseIOManager.addChangeCommunicationIDRequest(new ChangeCommunicationIDRequest(screenHandler.getSLIEntity(), newID));
+                    SLICache.addChangeCommunicationIDRequest(new ChangeCommunicationIDRequest(screenHandler.getSLIEntity(), newID));
                     WheatSync.sliCache.updateCommunicationID(screenHandler.getSLIEntity(), newID);
                     screenHandler.getSLIEntity().markDirty();
                 }

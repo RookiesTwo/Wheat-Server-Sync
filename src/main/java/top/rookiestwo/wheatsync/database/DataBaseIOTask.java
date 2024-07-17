@@ -10,15 +10,16 @@ public class DataBaseIOTask implements Runnable {
     @Override
     public void run() {
         while (true) {
+            long startTime; // 记录循环开始时间
             synchronized (lock) {
                 try {
                     lock.wait();
-
-                    WheatSync.databaseHelper.processCreateSLIRequests(DataBaseIOManager.createSLIRequestQueue);
-                    WheatSync.databaseHelper.processDeleteSLIRequests(DataBaseIOManager.deleteSLIRequestQueue);
-                    WheatSync.databaseHelper.processChangeCommunicationIDRequests(DataBaseIOManager.changeCommunicationIDRequestQueue);
-                    WheatSync.databaseHelper.processUpdateInventoryRequests(DataBaseIOManager.updateInventoryRequestQueue);
-                    WheatSync.databaseHelper.processGetSLIRequests(DataBaseIOManager.getSLIRequestQueue);
+                    startTime = System.currentTimeMillis(); // 记录循环开始时间
+                    WheatSync.databaseHelper.processCreateSLIRequests(SLICache.createSLIRequestQueue);
+                    WheatSync.databaseHelper.processDeleteSLIRequests(SLICache.deleteSLIRequestQueue);
+                    WheatSync.databaseHelper.processChangeCommunicationIDRequests(SLICache.changeCommunicationIDRequestQueue);
+                    WheatSync.databaseHelper.processUpdateInventoryRequests(SLICache.updateInventoryRequestQueue);
+                    WheatSync.databaseHelper.processGetSLIRequests(SLICache.getSLIRequestQueue);
 
                 } catch (InterruptedException e) {
                     WheatSync.LOGGER.error("Work thread Interrupted.");
@@ -27,10 +28,15 @@ public class DataBaseIOTask implements Runnable {
                     throw new RuntimeException(e);
                 }
             }
+            long endTime = System.currentTimeMillis(); // 记录循环结束时间
+            long duration = endTime - startTime; // 计算循环消耗时间
+            WheatSync.LOGGER.info("Loop duration: " + duration + " ms"); // 输出循环消耗时间
         }
     }
 
     public void continueLoop() {
-        lock.notify();
+        synchronized (lock) {
+            lock.notify();
+        }
     }
 }

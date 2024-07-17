@@ -54,8 +54,10 @@ public class DatabaseHelper {
     }
 
     public void processUpdateInventoryRequests(Queue<UpdateInventoryRequest> requests) throws SQLException {
+
         if (requests.isEmpty()) return;
         try (PreparedStatement pstmt = connection.prepareStatement(UPDATE_INVENTORY_SQL)) {
+            WheatSync.LOGGER.info("Update Inventory Request");
             UpdateInventoryRequest request;
             while ((request = requests.poll()) != null) {
                 pstmt.setString(1, request.newInventory);
@@ -68,8 +70,10 @@ public class DatabaseHelper {
     }
 
     public void processCreateSLIRequests(Queue<CreateSLIRequest> requests) throws SQLException {
+
         if (requests.isEmpty()) return;
         try (PreparedStatement pstmt = connection.prepareStatement(INSERT_SLI_SQL)) {
+            WheatSync.LOGGER.info("Create SLI Request");
             CreateSLIRequest request;
             while ((request = requests.poll()) != null) {
                 pstmt.setString(1, request.playerUUID.toString());
@@ -82,8 +86,10 @@ public class DatabaseHelper {
     }
 
     public void processDeleteSLIRequests(Queue<DeleteSLIRequest> requests) throws SQLException {
+
         if (requests.isEmpty()) return;
         try (PreparedStatement pstmt = connection.prepareStatement(DELETE_SLI_SQL)) {
+            WheatSync.LOGGER.info("Delete SLI Request");
             DeleteSLIRequest request;
             while ((request = requests.poll()) != null) {
                 pstmt.setString(1, request.playerUUID.toString());
@@ -95,8 +101,10 @@ public class DatabaseHelper {
     }
 
     public void processChangeCommunicationIDRequests(Queue<ChangeCommunicationIDRequest> requests) throws SQLException {
+
         if (requests.isEmpty()) return;
         try (PreparedStatement pstmt = connection.prepareStatement(UPDATE_COMMUNICATION_ID_SQL)) {
+            WheatSync.LOGGER.info("Change Communication Request");
             ChangeCommunicationIDRequest request;
             while ((request = requests.poll()) != null) {
                 pstmt.setInt(1, request.newCommunicationID);
@@ -109,9 +117,12 @@ public class DatabaseHelper {
     }
 
     public void processGetSLIRequests(Queue<GetSLIRequest> requests) throws SQLException {
+
         if (requests.isEmpty()) return;
         try (PreparedStatement pstmt = connection.prepareStatement(GET_SLI_SQL)) {
-            for (GetSLIRequest request : requests) {
+            WheatSync.LOGGER.info("Get SLI Request");
+            GetSLIRequest request;
+            while ((request = requests.poll()) != null) {
                 pstmt.setString(1, request.playerUUID.toString());
                 pstmt.setInt(2, request.communicationID);
                 ResultSet rs = pstmt.executeQuery();

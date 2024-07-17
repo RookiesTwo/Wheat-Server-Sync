@@ -19,15 +19,15 @@ import org.jetbrains.annotations.Nullable;
 import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
 import top.rookiestwo.wheatsync.api.LogisticsInterfaceInventory;
-import top.rookiestwo.wheatsync.database.DataBaseIOManager;
+import top.rookiestwo.wheatsync.database.SLICache;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
 
 import java.util.UUID;
 
 public class StandardLogisticsInterfaceEntity extends BlockEntity implements ExtendedScreenHandlerFactory, LogisticsInterfaceInventory {
 
-    private final DefaultedList<ItemStack> inventory = DefaultedList.ofSize(5, ItemStack.EMPTY);
-    private final DefaultedList<ItemStack> inventorySnapshot = DefaultedList.ofSize(5, ItemStack.EMPTY);
+    private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(5, ItemStack.EMPTY);
+    private DefaultedList<ItemStack> inventorySnapshot = DefaultedList.ofSize(5, ItemStack.EMPTY);
     private final short inventorySize = 5;
 
     private int CommunicationID = 0;
@@ -66,8 +66,7 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
     }
 
     public void setInventory(String inventory) {
-        this.inventory.clear();
-        this.inventory.addAll(DataBaseIOManager.unSerializeInventory(inventory));
+        this.inventory = SLICache.unSerializeInventory(inventory);
         this.markDirty();
     }
 

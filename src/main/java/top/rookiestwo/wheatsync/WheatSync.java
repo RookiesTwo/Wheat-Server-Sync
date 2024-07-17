@@ -21,7 +21,7 @@ public class WheatSync implements ModInitializer {
 
     public static DatabaseHelper databaseHelper = null;
     public static SLICache sliCache = null;
-    public static DataBaseIOTask dataBaseIOTask = null;
+    public static final DataBaseIOTask dataBaseIOTask = new DataBaseIOTask();
     public static Thread dataBaseIOTaskThread = null;
 
     static {
@@ -44,8 +44,6 @@ public class WheatSync implements ModInitializer {
         databaseHelper.fetchAllFromTable("sli_contents");
         //创建缓存
         sliCache = new SLICache();
-        dataBaseIOTask = new DataBaseIOTask();
-        dataBaseIOTaskThread = new Thread(dataBaseIOTask);
 
         LOGGER.info("WheatSync Initialized.");
     }

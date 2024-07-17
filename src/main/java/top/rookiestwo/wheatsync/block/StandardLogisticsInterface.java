@@ -18,7 +18,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
-import top.rookiestwo.wheatsync.database.DataBaseIOManager;
+import top.rookiestwo.wheatsync.database.SLICache;
 import top.rookiestwo.wheatsync.database.requests.DeleteSLIRequest;
 
 public class StandardLogisticsInterface extends BlockWithEntity {
@@ -56,7 +56,7 @@ public class StandardLogisticsInterface extends BlockWithEntity {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof StandardLogisticsInterfaceEntity) {
                 ItemScatterer.spawn(world, pos, (StandardLogisticsInterfaceEntity) blockEntity);
-                DataBaseIOManager.addDeleteSLIRequest(new DeleteSLIRequest((StandardLogisticsInterfaceEntity) blockEntity));
+                SLICache.addDeleteSLIRequest(new DeleteSLIRequest((StandardLogisticsInterfaceEntity) blockEntity));
                 WheatSync.sliCache.removeSLICache((StandardLogisticsInterfaceEntity) blockEntity);
 
                 // 更新比较器
