@@ -20,7 +20,6 @@ public class DataBaseIOTask implements Runnable {
                     WheatSync.databaseHelper.processChangeCommunicationIDRequests(SLICache.changeCommunicationIDRequestQueue);
                     WheatSync.databaseHelper.processUpdateInventoryRequests(SLICache.updateInventoryRequestQueue);
                     WheatSync.databaseHelper.processGetSLIRequests(SLICache.getSLIRequestQueue);
-
                 } catch (InterruptedException e) {
                     WheatSync.LOGGER.error("Work thread Interrupted.");
                     break;

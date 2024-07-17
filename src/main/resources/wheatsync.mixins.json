@@ -4,6 +4,7 @@
   "package": "top.rookiestwo.wheatsync.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "ServerTickLogicEndMixin"
   ],
   "client": [
   ],

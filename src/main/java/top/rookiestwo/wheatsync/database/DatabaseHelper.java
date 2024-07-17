@@ -120,14 +120,14 @@ public class DatabaseHelper {
 
         if (requests.isEmpty()) return;
         try (PreparedStatement pstmt = connection.prepareStatement(GET_SLI_SQL)) {
-            WheatSync.LOGGER.info("Get SLI Request");
+            //WheatSync.LOGGER.info("Get SLI Request");
             GetSLIRequest request;
             while ((request = requests.poll()) != null) {
                 pstmt.setString(1, request.playerUUID.toString());
                 pstmt.setInt(2, request.communicationID);
                 ResultSet rs = pstmt.executeQuery();
                 while (rs.next()) {
-                    WheatSync.sliCache.updateSLIInventory(
+                    WheatSync.sliCache.updateSLIInventoryCache(
                             UUID.fromString(rs.getString("player_uuid")),
                             rs.getInt("communication_id"),
                             rs.getString("inventory")
@@ -140,20 +140,13 @@ public class DatabaseHelper {
     }
 
     public void fetchAllFromTable(String tableName) {
-        long startTime = System.currentTimeMillis(); // 记录开始时间
 
-        String query = "SELECT * FROM " + tableName;
+        String query = "SELECT * FROM sli_contents";
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
-
             while (rs.next()) {
-                // 这里仅作为示例，实际上您可能需要处理结果集中的数据
-                // 例如：String data = rs.getString("某列名称");
-            }
 
-            long endTime = System.currentTimeMillis(); // 记录结束时间
-            long duration = endTime - startTime; // 计算持续时间
-            WheatSync.LOGGER.info("从表 " + tableName + " 抓取所有行数据耗时 " + duration + " 毫秒。");
+            }
         } catch (SQLException e) {
             WheatSync.LOGGER.error("从表 " + tableName + " 抓取数据失败。详情：\n{}", e.getMessage());
         }
