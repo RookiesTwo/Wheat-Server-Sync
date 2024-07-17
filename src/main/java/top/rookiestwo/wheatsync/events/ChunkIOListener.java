@@ -10,8 +10,10 @@ public class ChunkIOListener {
     public static void register() {
         ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register((BlockEntity entity, ServerWorld world) -> {
             if (entity instanceof StandardLogisticsInterfaceEntity) {
-                if (((StandardLogisticsInterfaceEntity) entity).getCommunicationID() != 0)
-                    WheatSync.sliCache.addSLICache((StandardLogisticsInterfaceEntity) entity);
+                if (((StandardLogisticsInterfaceEntity) entity).getCommunicationID() != 0) {
+                    ((StandardLogisticsInterfaceEntity) entity).copyInventoryToSnapshot();
+                }
+                WheatSync.sliCache.addSLICache((StandardLogisticsInterfaceEntity) entity);
             }
         });
 

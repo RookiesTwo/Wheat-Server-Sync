@@ -56,7 +56,7 @@ public class StandardLogisticsInterface extends BlockWithEntity {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof StandardLogisticsInterfaceEntity) {
                 ItemScatterer.spawn(world, pos, (StandardLogisticsInterfaceEntity) blockEntity);
-                DataBaseIOManager.addDeleteSLIRequest(new DeleteSLIRequest());
+                DataBaseIOManager.addDeleteSLIRequest(new DeleteSLIRequest((StandardLogisticsInterfaceEntity) blockEntity));
                 WheatSync.sliCache.removeSLICache((StandardLogisticsInterfaceEntity) blockEntity);
 
                 // 更新比较器
