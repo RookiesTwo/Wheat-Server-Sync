@@ -16,6 +16,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
+import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
 import top.rookiestwo.wheatsync.api.LogisticsInterfaceInventory;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
@@ -50,6 +51,18 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
         this.writeNbt(new NbtCompound());
     }
 
+    public DefaultedList<ItemStack> getInventory() {
+        return inventory;
+    }
+
+    public int getCommunicationID() {
+        return CommunicationID;
+    }
+
+    public UUID getBLOCK_PLACER() {
+        return BLOCK_PLACER;
+    }
+
     @Nullable
     @Override
     public ScreenHandler createMenu(int syncId, PlayerInventory playerInventory, PlayerEntity player) {
@@ -79,6 +92,8 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
         }
         CommunicationID = nbt.getInt("CommunicationID");
         Inventories.readNbt(nbt, this.inventory);
+
+        WheatSync.LOGGER.info("Read {}", nbt.toString());
     }
 
     @Override
@@ -89,6 +104,8 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
         }
         nbt.putInt("CommunicationID", CommunicationID);
         Inventories.writeNbt(nbt, this.inventory);
+
+        WheatSync.LOGGER.info("Write {}", nbt.toString());
 
         super.writeNbt(nbt);
     }
@@ -103,6 +120,5 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
             buf.writeUuid(UUID.randomUUID());
             buf.writeString("unknown player");
         }
-
     }
 }

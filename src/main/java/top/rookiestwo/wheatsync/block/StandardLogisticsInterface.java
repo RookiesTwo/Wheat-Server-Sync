@@ -16,7 +16,6 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
 
 public class StandardLogisticsInterface extends BlockWithEntity {
@@ -40,19 +39,14 @@ public class StandardLogisticsInterface extends BlockWithEntity {
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient) {
-            // 这里会调用 BlockWithEntity 的 createScreenHandlerFactory 方法，会将返回的方块实体强转为
-            // 一个 namedScreenHandlerFactory。如果你的方块没有继承 BlockWithEntity，那就需要单独实现 createScreenHandlerFactory。
             NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
-            WheatSync.LOGGER.info("SLI Used!");
             if (screenHandlerFactory != null) {
-                // 这个调用会让服务器请求客户端开启合适的 Screenhandler
                 player.openHandledScreen(screenHandlerFactory);
             }
         }
         return ActionResult.SUCCESS;
     }
 
-    // 这个方法能让方块破坏时物品全部掉落
     @Override
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {

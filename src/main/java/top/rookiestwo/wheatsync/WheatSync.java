@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Logger;
 import top.rookiestwo.wheatsync.config.ConfigManager;
 import top.rookiestwo.wheatsync.config.WheatSyncConfig;
 import top.rookiestwo.wheatsync.database.DatabaseHelper;
+import top.rookiestwo.wheatsync.database.SLICache;
+import top.rookiestwo.wheatsync.events.WheatSyncChunkIOListener;
 
 
 public class WheatSync implements ModInitializer {
@@ -16,11 +18,13 @@ public class WheatSync implements ModInitializer {
     public static WheatSyncConfig CONFIG=null;
 
     public static DatabaseHelper databaseHelper = null;
+    public static SLICache sliCache = null;
 
     static {
         //注册
         WheatSyncRegistry.registerAll();
         WheatSyncRegistry.registerServerPacketReceiver();
+        WheatSyncChunkIOListener.register();
     }
 
     @Override
@@ -32,6 +36,10 @@ public class WheatSync implements ModInitializer {
 
         //database
         databaseHelper = new DatabaseHelper();
+        databaseHelper.fetchAllFromTable("sli_contents");
+
+        //创建缓存
+        sliCache = new SLICache();
 
         LOGGER.info("WheatSync Initialized.");
     }
