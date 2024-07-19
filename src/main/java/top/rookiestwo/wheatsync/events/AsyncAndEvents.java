@@ -19,6 +19,8 @@ import net.minecraft.world.World;
 import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.block.StandardLogisticsInterface;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
+import top.rookiestwo.wheatsync.config.ConfigManager;
+import top.rookiestwo.wheatsync.database.DatabaseHelper;
 import top.rookiestwo.wheatsync.database.SLICache;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
 
@@ -49,6 +51,12 @@ public class AsyncAndEvents {
         });
 
         ServerLifecycleEvents.SERVER_STARTING.register((server) -> {
+            //配置文件
+            WheatSync.CONFIG_MANAGER = new ConfigManager();
+            WheatSync.CONFIG = WheatSync.CONFIG_MANAGER.getConfig();
+
+            //database
+            WheatSync.databaseHelper = new DatabaseHelper();
             WheatSync.sliCache = new SLICache();
             WheatSync.databaseHelper.loadSLIEntitiesFromDatabaseToCache();
         });

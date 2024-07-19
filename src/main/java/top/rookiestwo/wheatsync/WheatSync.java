@@ -34,12 +34,6 @@ public class WheatSync implements ModInitializer {
     @Override
     public void onInitialize() {
         LOGGER.info("WheatSync Initializing..");
-        //配置文件
-        CONFIG_MANAGER = new ConfigManager();
-        CONFIG=CONFIG_MANAGER.getConfig();
-
-        //database
-        databaseHelper = new DatabaseHelper();
 
         LOGGER.info("WheatSync Initialized.");
     }
