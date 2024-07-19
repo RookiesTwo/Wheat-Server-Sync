@@ -20,7 +20,7 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
-import top.rookiestwo.wheatsync.events.AsyncEvents;
+import top.rookiestwo.wheatsync.events.AsyncAndEvents;
 
 public class StandardLogisticsInterface extends BlockWithEntity {
 
@@ -57,7 +57,7 @@ public class StandardLogisticsInterface extends BlockWithEntity {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof StandardLogisticsInterfaceEntity SLIEntity) {
 
-                AsyncEvents.onSLIBlockDestroyed(state, world, pos, newState, moved, SLIEntity, this);
+                AsyncAndEvents.onSLIBlockDestroyed(state, world, pos, newState, moved, SLIEntity, this);
 
                 ItemScatterer.spawn(world, pos, SLIEntity);
                 //WheatSync.sliCache.removeSLICache((StandardLogisticsInterfaceEntity) blockEntity);

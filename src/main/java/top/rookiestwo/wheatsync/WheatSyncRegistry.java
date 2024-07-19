@@ -14,7 +14,7 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import top.rookiestwo.wheatsync.block.StandardLogisticsInterface;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
-import top.rookiestwo.wheatsync.events.AsyncEvents;
+import top.rookiestwo.wheatsync.events.AsyncAndEvents;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
 
 public class WheatSyncRegistry {
@@ -61,7 +61,7 @@ public class WheatSyncRegistry {
 
     public static void registerServerPacketReceiver() {
         ServerPlayNetworking.registerGlobalReceiver(new Identifier(WheatSync.MOD_ID, "set_communication_id"), (server, player, handler, buf, responseSender) -> {
-            server.execute(() -> AsyncEvents.onReceiveC2SCommunicationIDChangePacket(server, player, handler, buf, responseSender));
+            AsyncAndEvents.onReceiveC2SCommunicationIDChangePacket(server, player, handler, buf, responseSender);
         });
     }
 

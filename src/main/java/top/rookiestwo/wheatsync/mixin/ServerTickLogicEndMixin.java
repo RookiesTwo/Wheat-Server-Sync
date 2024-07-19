@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import top.rookiestwo.wheatsync.events.TickEndEvent;
+import top.rookiestwo.wheatsync.events.AsyncAndEvents;
 
 import java.sql.SQLException;
 
@@ -20,6 +20,6 @@ public class ServerTickLogicEndMixin {
             )
     )
     private void onRunTasksTillTickEnd$WheatSync(CallbackInfo ci) throws InterruptedException, SQLException {
-        TickEndEvent.runAfterLogic();
+        AsyncAndEvents.runAfterLogic();
     }
 }

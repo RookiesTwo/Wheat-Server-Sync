@@ -80,6 +80,12 @@ public class SLICache {
         }
     }
 
+    public void updateSLIInventory(UUID playerUUID, int communicationID, String newInventory) {
+        SLIStatus status = cache.get(playerUUID).get(communicationID);
+        status.Inventory = newInventory;
+        addUpdateInventoryRequest(new UpdateInventoryRequest(playerUUID, communicationID, status.Inventory));
+    }
+
     public boolean ifOnOtherServer(UUID playeUUID, int communicationID) {
         return cache.get(playeUUID).get(communicationID).ifOnOtherServer;
     }
@@ -89,10 +95,18 @@ public class SLICache {
     }
 
     public void setSLILoadingStatus(UUID playerUUID, int communicationID, boolean status) {
-        cache.get(playerUUID).get(communicationID).isLoaded = status;
+        Map<Integer, SLIStatus> playerCache = cache.get(playerUUID);
+        if (playerCache == null) {
+            return;
+        }
+        playerCache.get(communicationID).isLoaded = status;
     }
 
     public boolean ifSLIExists(UUID playerUUID, int communicationID) {
-        return cache.get(playerUUID).containsKey(communicationID);
+        Map<Integer, SLIStatus> playerCache = cache.get(playerUUID);
+        if (playerCache == null) {
+            return false;
+        }
+        return playerCache.containsKey(communicationID);
     }
 }

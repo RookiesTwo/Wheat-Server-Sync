@@ -5,11 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import top.rookiestwo.wheatsync.config.ConfigManager;
 import top.rookiestwo.wheatsync.config.WheatSyncConfig;
-import top.rookiestwo.wheatsync.database.DataBaseIOTask;
 import top.rookiestwo.wheatsync.database.DatabaseHelper;
 import top.rookiestwo.wheatsync.database.SLICache;
-import top.rookiestwo.wheatsync.events.AsyncEvents;
-import top.rookiestwo.wheatsync.events.TickEndEvent;
+import top.rookiestwo.wheatsync.events.AsyncAndEvents;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,16 +22,13 @@ public class WheatSync implements ModInitializer {
 
     public static DatabaseHelper databaseHelper = null;
     public static SLICache sliCache = null;
-    public static final DataBaseIOTask dataBaseIOTask = new DataBaseIOTask();
-    public static Thread dataBaseIOTaskThread = null;
     public static ExecutorService asyncExecutor = Executors.newFixedThreadPool(4);
 
     static {
         //注册
         WheatSyncRegistry.registerAll();
         WheatSyncRegistry.registerServerPacketReceiver();
-        AsyncEvents.register();
-        TickEndEvent.register();
+        AsyncAndEvents.register();
     }
 
     @Override
@@ -45,9 +40,6 @@ public class WheatSync implements ModInitializer {
 
         //database
         databaseHelper = new DatabaseHelper();
-        databaseHelper.fetchAllFromTable("sli_contents");
-        //创建缓存
-        sliCache = new SLICache();
 
         LOGGER.info("WheatSync Initialized.");
     }

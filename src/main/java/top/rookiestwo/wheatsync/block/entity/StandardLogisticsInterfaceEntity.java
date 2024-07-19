@@ -110,9 +110,13 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, BlockEntity blockEntity) {
-        if (blockEntity instanceof StandardLogisticsInterfaceEntity) {
-            StandardLogisticsInterfaceEntity entity = (StandardLogisticsInterfaceEntity) blockEntity;
-            entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), entity.getCommunicationID()));
+        if (blockEntity instanceof StandardLogisticsInterfaceEntity entity) {
+            if (entity.getCommunicationID() != 0) {
+                if (entity.ifInventoryChanged()) {
+                    WheatSync.sliCache.updateSLIInventory(entity.getBLOCK_PLACER(), entity.getCommunicationID(), SLICache.serializeInventory(entity.getInventory()));
+                }
+                entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), entity.getCommunicationID()));
+            }
         }
     }
 

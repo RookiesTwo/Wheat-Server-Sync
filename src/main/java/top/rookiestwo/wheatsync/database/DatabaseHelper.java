@@ -1,6 +1,7 @@
 package top.rookiestwo.wheatsync.database;
 
 import top.rookiestwo.wheatsync.WheatSync;
+import top.rookiestwo.wheatsync.database.requests.UpdateInventoryRequest;
 
 import java.sql.*;
 import java.util.UUID;
@@ -78,7 +79,6 @@ public class DatabaseHelper {
 
                 WheatSync.sliCache.addOrUpdateSLICache(playerUUID, communicationID, inventory, isOnOtherServer);
             }
-
         } catch (SQLException e) {
             WheatSync.LOGGER.error("Failed to load SLIEntities from database. Details:\n{}", e.getMessage());
         }
@@ -155,7 +155,22 @@ public class DatabaseHelper {
         }
     }
 
-    public void processUpdateInventoryQueue()
+    public void processUpdateInventoryQueue() {
+        if (SLICache.updateInventoryRequestQueue.isEmpty()) return;
+        UpdateInventoryRequest request = null;
+        try (PreparedStatement pstmt = connection.prepareStatement("UPDATE sli_contents SET inventory = ? WHERE player_uuid = ? AND communication_id = ?")) {
+            WheatSync.LOGGER.info("Update Inventory Request");
+            while ((request = SLICache.updateInventoryRequestQueue.poll()) != null) {
+                pstmt.setString(1, request.newInventory);
+                pstmt.setString(2, request.playerUUID.toString());
+                pstmt.setInt(3, request.communicationID);
+                pstmt.addBatch();
+            }
+            pstmt.executeBatch();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     //是否在在其他服务器存在
     private boolean ifOnOtherServer(ResultSet resultSet) throws SQLException {

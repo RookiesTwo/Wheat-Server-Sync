@@ -1,6 +1,8 @@
 package top.rookiestwo.wheatsync.events;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -11,6 +13,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.block.StandardLogisticsInterface;
@@ -18,28 +21,44 @@ import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
 import top.rookiestwo.wheatsync.database.SLICache;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
 
+import java.sql.SQLException;
 import java.util.concurrent.CompletableFuture;
 
-public class AsyncEvents {
+public class AsyncAndEvents {
     public static void register() {
         ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register((BlockEntity entity, ServerWorld world) -> {
 
             if (entity instanceof StandardLogisticsInterfaceEntity SLIEntity) {
-                if (SLIEntity.getCommunicationID() == 0) {
-                    return;
-                }
+                ChunkPos chunkPos = new ChunkPos(entity.getPos());
+                if (!world.isChunkLoaded(chunkPos.toLong())) return;
+                if (SLIEntity.getCommunicationID() == 0) return;
                 SLIEntity.setInventory(WheatSync.sliCache.getInventoryOf(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID()));
+                SLIEntity.copyInventoryToSnapshot();
                 WheatSync.sliCache.setSLILoadingStatus(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID(), true);
             }
 
         });
 
         ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((BlockEntity entity, ServerWorld world) -> {
+
             if (entity instanceof StandardLogisticsInterfaceEntity SLIEntity) {
                 WheatSync.sliCache.setSLILoadingStatus(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID(), false);
             }
+
         });
 
+        ServerLifecycleEvents.SERVER_STARTING.register((server) -> {
+            WheatSync.sliCache = new SLICache();
+            WheatSync.databaseHelper.loadSLIEntitiesFromDatabaseToCache();
+        });
+
+        ServerTickEvents.START_SERVER_TICK.register((server) -> {
+            /*CompletableFuture.supplyAsync(()->{
+
+                return true;
+            },WheatSync.asyncExecutor);*/
+            WheatSync.databaseHelper.loadSLIEntitiesFromDatabaseToCache();
+        });
     }
 
     public static void onReceiveC2SCommunicationIDChangePacket(
@@ -50,6 +69,7 @@ public class AsyncEvents {
             PacketSender responseSender
     ) {
         int newID = buf.readInt();
+        buf.release();
         SLIScreenHandler screenHandler = (SLIScreenHandler) player.currentScreenHandler;
         StandardLogisticsInterfaceEntity entity = screenHandler.getSLIEntity();
 
@@ -105,5 +125,12 @@ public class AsyncEvents {
             }
             //也许需要补充客户端代码，待测试
         });
+    }
+
+    public static void runAfterLogic() throws InterruptedException, SQLException {
+        CompletableFuture.supplyAsync(() -> {
+            WheatSync.databaseHelper.processUpdateInventoryQueue();
+            return true;
+        }, WheatSync.asyncExecutor);
     }
 }
