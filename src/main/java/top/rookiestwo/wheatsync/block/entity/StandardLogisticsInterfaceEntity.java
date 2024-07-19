@@ -37,9 +37,9 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
     public StandardLogisticsInterfaceEntity(BlockPos pos, BlockState state, LivingEntity placer) {
         super(WheatSyncRegistry.STANDARD_LOGISTICS_INTERFACE_BLOCK_ENTITY, pos, state);
 
-        if (placer instanceof PlayerEntity) {
-            BLOCK_PLACER = placer.getUuid();
-            BLOCK_PLACER_ID = placer.getName().getString();
+        if (placer instanceof PlayerEntity player) {
+            BLOCK_PLACER = player.getUuid();
+            BLOCK_PLACER_ID = player.getName().getString();
         } else BLOCK_PLACER = null;
     }
 
@@ -155,7 +155,6 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
         nbt.putInt("CommunicationID", CommunicationID);
         //Inventories.writeNbt(nbt, this.inventory);
 
-        WheatSync.LOGGER.info("Write1");
 
         super.writeNbt(nbt);
     }

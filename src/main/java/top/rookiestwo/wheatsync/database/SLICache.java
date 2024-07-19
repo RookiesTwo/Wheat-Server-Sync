@@ -56,16 +56,18 @@ public class SLICache {
     public void addOrUpdateSLICache(UUID playerUUID, int communicationID, String inventory, boolean isLoaded, boolean ifOnOtherServer) {
         cache.compute(playerUUID, (uuid, communicationMap) -> {
             if (communicationMap == null) {
-                //原本不存在的情况
                 communicationMap = new HashMap<>();
-                SLIStatus newStatus = new SLIStatus(inventory, isLoaded, ifOnOtherServer);
-                communicationMap.put(communicationID, newStatus);
-            } else {
-                //原本存在的情况
-                SLIStatus oldStatus = communicationMap.get(communicationID);
-                SLIStatus newStatus = new SLIStatus(inventory, oldStatus.isLoaded, ifOnOtherServer);
-                communicationMap.put(communicationID, newStatus);
             }
+            SLIStatus oldStatus = communicationMap.get(communicationID);
+            SLIStatus newStatus;
+            if (oldStatus == null) {
+                // 如果oldStatus为null，说明之前没有这个communicationID的记录，需要创建一个新的SLIStatus实例
+                newStatus = new SLIStatus(inventory, isLoaded, ifOnOtherServer);
+            } else {
+                // 如果oldStatus不为null，可以安全地访问oldStatus.isLoaded
+                newStatus = new SLIStatus(inventory, oldStatus.isLoaded, ifOnOtherServer);
+            }
+            communicationMap.put(communicationID, newStatus);
             return communicationMap;
         });
     }
@@ -103,10 +105,8 @@ public class SLICache {
     }
 
     public boolean ifSLIExists(UUID playerUUID, int communicationID) {
-        Map<Integer, SLIStatus> playerCache = cache.get(playerUUID);
-        if (playerCache == null) {
-            return false;
-        }
-        return playerCache.containsKey(communicationID);
+        if (cache.get(playerUUID) == null) return false;
+        if (cache.get(playerUUID).get(communicationID) == null) return false;
+        return true;
     }
 }

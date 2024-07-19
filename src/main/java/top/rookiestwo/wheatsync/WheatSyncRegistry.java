@@ -1,5 +1,6 @@
 package top.rookiestwo.wheatsync;
 
+import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -8,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
@@ -61,7 +63,8 @@ public class WheatSyncRegistry {
 
     public static void registerServerPacketReceiver() {
         ServerPlayNetworking.registerGlobalReceiver(new Identifier(WheatSync.MOD_ID, "set_communication_id"), (server, player, handler, buf, responseSender) -> {
-            AsyncAndEvents.onReceiveC2SCommunicationIDChangePacket(server, player, handler, buf, responseSender);
+            PacketByteBuf copiedBuf = new PacketByteBuf(Unpooled.copiedBuffer(buf));
+            AsyncAndEvents.onReceiveC2SCommunicationIDChangePacket(server, player, handler, copiedBuf, responseSender);
         });
     }
 

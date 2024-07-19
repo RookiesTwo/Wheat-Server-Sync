@@ -18,6 +18,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
 import top.rookiestwo.wheatsync.events.AsyncAndEvents;
@@ -32,6 +33,7 @@ public class StandardLogisticsInterface extends BlockWithEntity {
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+        WheatSync.LOGGER.info("Placer:" + blockPlacer);
         return new StandardLogisticsInterfaceEntity(pos, state, blockPlacer);
     }
 
@@ -82,8 +84,12 @@ public class StandardLogisticsInterface extends BlockWithEntity {
 
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
-        //WheatServerSync.LOGGER.info("SLI Placed!");
-        blockPlacer = placer;
+        if (!world.isClient) {
+            blockPlacer = placer;
+            if (placer == null) {
+                world.breakBlock(pos, true);
+            }
+        }
     }
 
     @Override

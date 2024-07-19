@@ -108,9 +108,8 @@ public class DatabaseHelper {
             ResultSet resultSet = stmt.executeQuery();
             if (resultSet.next()) {
                 String inventory = resultSet.getString("inventory");
-                boolean isOnOtherServer = ifOnOtherServer(resultSet);
                 // 更新缓存
-                WheatSync.sliCache.addOrUpdateSLICache(playerUUID, communicationID, inventory, isOnOtherServer);
+                WheatSync.sliCache.addOrUpdateSLICache(playerUUID, communicationID, inventory, ifOnOtherServer(resultSet));
             }
         } catch (SQLException e) {
             WheatSync.LOGGER.error("Failed to get SLI to cache. Details:\n{}", e.getMessage());

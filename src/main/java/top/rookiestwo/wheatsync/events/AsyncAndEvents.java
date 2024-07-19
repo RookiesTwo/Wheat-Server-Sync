@@ -12,6 +12,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ItemScatterer;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
@@ -69,7 +70,6 @@ public class AsyncAndEvents {
             PacketSender responseSender
     ) {
         int newID = buf.readInt();
-        buf.release();
         SLIScreenHandler screenHandler = (SLIScreenHandler) player.currentScreenHandler;
         StandardLogisticsInterfaceEntity entity = screenHandler.getSLIEntity();
 
@@ -79,25 +79,52 @@ public class AsyncAndEvents {
         }
 
         CompletableFuture.supplyAsync(() -> {
-            //如果数据库内存在此容器
-            if (WheatSync.databaseHelper.ifSLIExists(entity.getBLOCK_PLACER(), newID)) {
-                WheatSync.databaseHelper.getSLIToCache(entity.getBLOCK_PLACER(), newID);
-                return true;
+            try {
+                Pair<Boolean, Boolean> result = new Pair<>(false, false);
+                // 如果数据库内存在此容器
+                WheatSync.LOGGER.info("ChangeID Detect");
+                if (WheatSync.databaseHelper.ifSLIExists(entity.getBLOCK_PLACER(), newID)) {
+                    WheatSync.databaseHelper.getSLIToCache(entity.getBLOCK_PLACER(), newID);
+                    result.setLeft(true);
+                } else {
+                    WheatSync.sliCache.addOrUpdateSLICache(entity.getBLOCK_PLACER(), newID, entity.getInventory(), false);
+                    WheatSync.databaseHelper.createSLIRecord(entity.getBLOCK_PLACER(), newID, SLICache.serializeInventory(entity.getInventory()));
+                }
+                //如果老ID不为0，对老容器的处理
+                if (entity.getCommunicationID() != 0) {
+                    //如果在其他服务器存在
+                    if (WheatSync.sliCache.ifOnOtherServer(entity.getBLOCK_PLACER(), entity.getCommunicationID())) {
+                        WheatSync.databaseHelper.updateSLIServerStatus(entity.getBLOCK_PLACER(), entity.getCommunicationID(), false);
+                        WheatSync.sliCache.removeSLI(entity.getBLOCK_PLACER(), entity.getCommunicationID());
+                    } else {
+                        WheatSync.databaseHelper.deleteSLIRecord(entity.getBLOCK_PLACER(), entity.getCommunicationID());
+                        result.setRight(true);
+                    }
+                }
+                return result;
+            } catch (Exception e) {
+                WheatSync.LOGGER.error("Error processing async operation", e);
+                return new Pair<>(false, false);
             }
-            //如果数据库内不存在
-            WheatSync.sliCache.addOrUpdateSLICache(entity.getBLOCK_PLACER(), newID, entity.getInventory(), false);
-            WheatSync.databaseHelper.createSLIRecord(entity.getBLOCK_PLACER(), newID, SLICache.serializeInventory(entity.getInventory()));
-            return false;
         }, WheatSync.asyncExecutor).thenAccept((result) -> {
-            //将其他服务器存在的容器从缓存写入物品栏
-            if (result) {
-                server.executeSync(() -> {
-                    entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), newID));
-                });
-            }
+            // 将其他服务器存在的容器从缓存写入物品栏
             server.executeSync(() -> {
+                if (result.getLeft()) {
+                    WheatSync.LOGGER.info("Write To Inventory");
+                    entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), newID));
+                }
+                //爆金币
+                if (result.getRight()) {
+                    entity.clear();
+                    ItemScatterer.spawn(player.getWorld(), player.getBlockPos(), SLICache.unSerializeInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), entity.getCommunicationID())));
+                    WheatSync.sliCache.removeSLI(entity.getBLOCK_PLACER(), entity.getCommunicationID());
+                }
                 entity.setCommunicationID(newID);
+                entity.markDirty();
             });
+        }).exceptionally(e -> {
+            WheatSync.LOGGER.error("Error in CompletableFuture chain", e);
+            return null;
         });
     }
 
@@ -117,9 +144,9 @@ public class AsyncAndEvents {
             if (world instanceof ServerWorld) {
                 MinecraftServer server = world.getServer();
                 server.executeSync(() -> {
-                    WheatSync.sliCache.removeSLI(entity.getBLOCK_PLACER(), entity.getCommunicationID());
                     if (!result) ItemScatterer.spawn(world, pos, entity);
                     block.superOnStateReplaced(state, world, pos, newState, moved);
+                    WheatSync.sliCache.removeSLI(entity.getBLOCK_PLACER(), entity.getCommunicationID());
                     world.updateComparators(pos, block);
                 });
             }
