@@ -4,6 +4,8 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -16,10 +18,9 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import top.rookiestwo.wheatsync.WheatSync;
+import top.rookiestwo.wheatsync.WheatSyncRegistry;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
-import top.rookiestwo.wheatsync.database.SLICache;
-import top.rookiestwo.wheatsync.database.requests.DeleteSLIRequest;
+import top.rookiestwo.wheatsync.events.AsyncEvents;
 
 public class StandardLogisticsInterface extends BlockWithEntity {
 
@@ -54,16 +55,19 @@ public class StandardLogisticsInterface extends BlockWithEntity {
     public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
-            if (blockEntity instanceof StandardLogisticsInterfaceEntity) {
-                ItemScatterer.spawn(world, pos, (StandardLogisticsInterfaceEntity) blockEntity);
-                SLICache.addDeleteSLIRequest(new DeleteSLIRequest((StandardLogisticsInterfaceEntity) blockEntity));
-                WheatSync.sliCache.removeSLICache((StandardLogisticsInterfaceEntity) blockEntity);
+            if (blockEntity instanceof StandardLogisticsInterfaceEntity SLIEntity) {
 
-                // 更新比较器
-                world.updateComparators(pos, this);
+                AsyncEvents.onSLIBlockDestroyed(state, world, pos, newState, moved, SLIEntity, this);
+
+                ItemScatterer.spawn(world, pos, SLIEntity);
+                //WheatSync.sliCache.removeSLICache((StandardLogisticsInterfaceEntity) blockEntity);
+
             }
-            super.onStateReplaced(state, world, pos, newState, moved);
         }
+    }
+
+    public void superOnStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
+        super.onStateReplaced(state, world, pos, newState, moved);
     }
 
     @Override
@@ -82,4 +86,10 @@ public class StandardLogisticsInterface extends BlockWithEntity {
         blockPlacer = placer;
     }
 
+    @Override
+    @Nullable
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+        if (world.isClient) return null;
+        return StandardLogisticsInterface.checkType(type, WheatSyncRegistry.STANDARD_LOGISTICS_INTERFACE_BLOCK_ENTITY, StandardLogisticsInterfaceEntity::tick);
+    }
 }

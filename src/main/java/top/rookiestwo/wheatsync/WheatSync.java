@@ -8,8 +8,11 @@ import top.rookiestwo.wheatsync.config.WheatSyncConfig;
 import top.rookiestwo.wheatsync.database.DataBaseIOTask;
 import top.rookiestwo.wheatsync.database.DatabaseHelper;
 import top.rookiestwo.wheatsync.database.SLICache;
-import top.rookiestwo.wheatsync.events.ChunkIOListener;
+import top.rookiestwo.wheatsync.events.AsyncEvents;
 import top.rookiestwo.wheatsync.events.TickEndEvent;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class WheatSync implements ModInitializer {
@@ -23,12 +26,13 @@ public class WheatSync implements ModInitializer {
     public static SLICache sliCache = null;
     public static final DataBaseIOTask dataBaseIOTask = new DataBaseIOTask();
     public static Thread dataBaseIOTaskThread = null;
+    public static ExecutorService asyncExecutor = Executors.newFixedThreadPool(4);
 
     static {
         //注册
         WheatSyncRegistry.registerAll();
         WheatSyncRegistry.registerServerPacketReceiver();
-        ChunkIOListener.register();
+        AsyncEvents.register();
         TickEndEvent.register();
     }
 

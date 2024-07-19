@@ -5,83 +5,23 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.util.Pair;
 import net.minecraft.util.collection.DefaultedList;
-import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
-import top.rookiestwo.wheatsync.database.requests.*;
+import top.rookiestwo.wheatsync.database.requests.UpdateInventoryRequest;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SLICache {
-    private Map<UUID, Map<Integer, Pair<StandardLogisticsInterfaceEntity, String>>> cache;
+    private final Map<UUID, Map<Integer, SLIStatus>> cache;
 
-    public static Queue<CreateSLIRequest> createSLIRequestQueue = new ConcurrentLinkedQueue<>();
     public static Queue<UpdateInventoryRequest> updateInventoryRequestQueue = new ConcurrentLinkedQueue<>();
-    public static Queue<DeleteSLIRequest> deleteSLIRequestQueue = new ConcurrentLinkedQueue<>();
-    public static Queue<ChangeCommunicationIDRequest> changeCommunicationIDRequestQueue = new ConcurrentLinkedQueue<>();
-    public static Queue<GetSLIRequest> getSLIRequestQueue = new ConcurrentLinkedQueue<>();
-
-    public SLICache() {
-        this.cache = new HashMap<>();
-    }
-
-    public void addSLICache(StandardLogisticsInterfaceEntity entity) {
-        this.addSLICache(entity.getBLOCK_PLACER(), entity.getCommunicationID(), entity);
-    }
-
-    public void addSLICache(UUID playerUUID, int communicationID, StandardLogisticsInterfaceEntity entity) {
-        cache.computeIfAbsent(playerUUID, k -> new HashMap<>()).put(communicationID, new Pair<>(entity, serializeInventory(entity.getInventory())));
-    }
-
-    public void removeSLICache(StandardLogisticsInterfaceEntity entity) {
-        this.removeSLICache(entity.getBLOCK_PLACER(), entity.getCommunicationID());
-    }
-
-    public void removeSLICache(UUID playerUUID, int communicationID) {
-        Map<Integer, Pair<StandardLogisticsInterfaceEntity, String>> idMap = cache.get(playerUUID);
-        if (idMap != null) {
-            idMap.remove(communicationID);
-            if (idMap.isEmpty()) {
-                cache.remove(playerUUID);
-            }
-        }
-    }
-
-    public static void addCreateSLIRequest(CreateSLIRequest request) {
-        createSLIRequestQueue.add(request);
-    }
 
     public static void addUpdateInventoryRequest(UpdateInventoryRequest request) {
         updateInventoryRequestQueue.add(request);
-    }
-
-    public static void addDeleteSLIRequest(DeleteSLIRequest request) {
-        deleteSLIRequestQueue.add(request);
-    }
-
-    public static void addChangeCommunicationIDRequest(ChangeCommunicationIDRequest request) {
-        changeCommunicationIDRequestQueue.add(request);
-    }
-
-    public static void addGetSLIRequest(GetSLIRequest request) {
-        getSLIRequestQueue.add(request);
-    }
-
-    public void updateCommunicationID(StandardLogisticsInterfaceEntity entity, int newCommunicationID) {
-        removeSLICache(entity);
-        addSLICache(entity.getBLOCK_PLACER(), newCommunicationID, entity);
-    }
-
-    public StandardLogisticsInterfaceEntity getSLI(UUID playerUUID, int communicationID) {
-        Map<Integer, Pair<StandardLogisticsInterfaceEntity, String>> idMap = cache.get(playerUUID);
-        if (idMap != null) {
-            return idMap.get(communicationID).getLeft();
-        }
-        return null;
     }
 
     public static String serializeInventory(DefaultedList<ItemStack> inventory) {
@@ -101,39 +41,58 @@ public class SLICache {
         return tempInv;
     }
 
-    public void addAllCachedEntityToGetQueue() {
-        for (Map<Integer, Pair<StandardLogisticsInterfaceEntity, String>> playerCache : cache.values()) {
-            for (Map.Entry<Integer, Pair<StandardLogisticsInterfaceEntity, String>> entry : playerCache.entrySet()) {
-                StandardLogisticsInterfaceEntity entity = entry.getValue().getLeft();
-                addGetSLIRequest(new GetSLIRequest(entity));
-            }
-        }
+    public SLICache() {
+        this.cache = new ConcurrentHashMap<>();
     }
 
-    public void updateSLIInventoryCache(UUID playerUUID, int communicationID, String inventoryData) throws CommandSyntaxException {
-        Map<Integer, Pair<StandardLogisticsInterfaceEntity, String>> playerCache = cache.get(playerUUID);
+    public void addOrUpdateSLICache(UUID playerUUID, int communicationID, DefaultedList<ItemStack> inventory, boolean ifOnOtherServer) {
+        this.addOrUpdateSLICache(playerUUID, communicationID, serializeInventory(inventory), ifOnOtherServer);
+    }
+
+    public void addOrUpdateSLICache(UUID playerUUID, int communicationID, String inventory, boolean ifOnOtherServer) {
+        this.addOrUpdateSLICache(playerUUID, communicationID, inventory, true, ifOnOtherServer);
+    }
+
+    public void addOrUpdateSLICache(UUID playerUUID, int communicationID, String inventory, boolean isLoaded, boolean ifOnOtherServer) {
+        cache.compute(playerUUID, (uuid, communicationMap) -> {
+            if (communicationMap == null) {
+                //原本不存在的情况
+                communicationMap = new HashMap<>();
+                SLIStatus newStatus = new SLIStatus(inventory, isLoaded, ifOnOtherServer);
+                communicationMap.put(communicationID, newStatus);
+            } else {
+                //原本存在的情况
+                SLIStatus oldStatus = communicationMap.get(communicationID);
+                SLIStatus newStatus = new SLIStatus(inventory, oldStatus.isLoaded, ifOnOtherServer);
+                communicationMap.put(communicationID, newStatus);
+            }
+            return communicationMap;
+        });
+    }
+
+    public void removeSLI(UUID playerUUID, int communicationID) {
+        Map<Integer, SLIStatus> playerCache = cache.get(playerUUID);
         if (playerCache != null) {
-            Pair<StandardLogisticsInterfaceEntity, String> sliPair = playerCache.get(communicationID);
-            if (sliPair != null) {
-                playerCache.put(communicationID, new Pair<>(sliPair.getLeft(), inventoryData));
+            playerCache.remove(communicationID);
+            if (playerCache.isEmpty()) {
+                cache.remove(playerUUID);
             }
         }
     }
 
-    public void freshInventoryCacheToEntities() {
-        for (Map<Integer, Pair<StandardLogisticsInterfaceEntity, String>> playerCache : cache.values()) {
-            for (Map.Entry<Integer, Pair<StandardLogisticsInterfaceEntity, String>> entry : playerCache.entrySet()) {
-                entry.getValue().getLeft().setInventory(entry.getValue().getRight());
-            }
-        }
+    public boolean ifOnOtherServer(UUID playeUUID, int communicationID) {
+        return cache.get(playeUUID).get(communicationID).ifOnOtherServer;
     }
 
-    public void addUpdateRequests() {
-        for (Map<Integer, Pair<StandardLogisticsInterfaceEntity, String>> pairs : cache.values()) {
-            for (Pair<StandardLogisticsInterfaceEntity, String> pair : pairs.values()) {
-                if (pair.getLeft().ifInventoryChanged())
-                    addUpdateInventoryRequest(new UpdateInventoryRequest(pair.getLeft()));
-            }
-        }
+    public String getInventoryOf(UUID playerUUID, int communicationID) {
+        return cache.get(playerUUID).get(communicationID).Inventory;
+    }
+
+    public void setSLILoadingStatus(UUID playerUUID, int communicationID, boolean status) {
+        cache.get(playerUUID).get(communicationID).isLoaded = status;
+    }
+
+    public boolean ifSLIExists(UUID playerUUID, int communicationID) {
+        return cache.get(playerUUID).containsKey(communicationID);
     }
 }

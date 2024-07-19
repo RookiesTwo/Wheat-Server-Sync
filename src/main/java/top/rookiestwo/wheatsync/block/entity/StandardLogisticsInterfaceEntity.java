@@ -6,7 +6,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
@@ -15,6 +14,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
@@ -109,6 +109,13 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
         return inventory;
     }
 
+    public static void tick(World world, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+        if (blockEntity instanceof StandardLogisticsInterfaceEntity) {
+            StandardLogisticsInterfaceEntity entity = (StandardLogisticsInterfaceEntity) blockEntity;
+            entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), entity.getCommunicationID()));
+        }
+    }
+
     @Override
     public void readNbt(NbtCompound nbt) {
         super.readNbt(nbt);
@@ -118,23 +125,9 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
             BLOCK_PLACER_ID = nbt.getString("PlacerID");
         }
         CommunicationID = nbt.getInt("CommunicationID");
-        Inventories.readNbt(nbt, this.inventory);
+        //Inventories.readNbt(nbt, this.inventory);
 
         WheatSync.LOGGER.info("Read {}", nbt.toString());
-    }
-
-    @Override
-    public void writeNbt(NbtCompound nbt) {
-        if (BLOCK_PLACER != null) {
-            nbt.putUuid("PlacerUUID", BLOCK_PLACER);
-            nbt.putString("PlacerID", BLOCK_PLACER_ID);
-        }
-        nbt.putInt("CommunicationID", CommunicationID);
-        Inventories.writeNbt(nbt, this.inventory);
-
-        WheatSync.LOGGER.info("Write1");
-
-        super.writeNbt(nbt);
     }
 
     @Override
@@ -148,4 +141,20 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
             buf.writeString("unknown player");
         }
     }
+
+    @Override
+    public void writeNbt(NbtCompound nbt) {
+        if (BLOCK_PLACER != null) {
+            nbt.putUuid("PlacerUUID", BLOCK_PLACER);
+            nbt.putString("PlacerID", BLOCK_PLACER_ID);
+        }
+        nbt.putInt("CommunicationID", CommunicationID);
+        //Inventories.writeNbt(nbt, this.inventory);
+
+        WheatSync.LOGGER.info("Write1");
+
+        super.writeNbt(nbt);
+    }
+
+
 }

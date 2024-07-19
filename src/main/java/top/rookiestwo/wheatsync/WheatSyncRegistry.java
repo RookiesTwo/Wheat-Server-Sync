@@ -14,9 +14,7 @@ import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import top.rookiestwo.wheatsync.block.StandardLogisticsInterface;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
-import top.rookiestwo.wheatsync.database.SLICache;
-import top.rookiestwo.wheatsync.database.requests.ChangeCommunicationIDRequest;
-import top.rookiestwo.wheatsync.database.requests.CreateSLIRequest;
+import top.rookiestwo.wheatsync.events.AsyncEvents;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
 
 public class WheatSyncRegistry {
@@ -63,23 +61,7 @@ public class WheatSyncRegistry {
 
     public static void registerServerPacketReceiver() {
         ServerPlayNetworking.registerGlobalReceiver(new Identifier(WheatSync.MOD_ID, "set_communication_id"), (server, player, handler, buf, responseSender) -> {
-            int newID = buf.readInt();
-            server.execute(() -> {
-                SLIScreenHandler screenHandler = (SLIScreenHandler) player.currentScreenHandler;
-                int oldID = screenHandler.getSLIEntity().getCommunicationID();
-                screenHandler.getSLIEntity().setCommunicationID(newID);
-                WheatSync.LOGGER.info("Communication ID set to " + newID);
-                if (oldID == 0) {
-                    SLICache.addCreateSLIRequest(new CreateSLIRequest(screenHandler.getSLIEntity()));
-                    WheatSync.sliCache.addSLICache(screenHandler.getSLIEntity());
-                    screenHandler.getSLIEntity().markDirty();
-                }
-                if (oldID != 0) {
-                    SLICache.addChangeCommunicationIDRequest(new ChangeCommunicationIDRequest(screenHandler.getSLIEntity(), newID));
-                    WheatSync.sliCache.updateCommunicationID(screenHandler.getSLIEntity(), newID);
-                    screenHandler.getSLIEntity().markDirty();
-                }
-            });
+            server.execute(() -> AsyncEvents.onReceiveC2SCommunicationIDChangePacket(server, player, handler, buf, responseSender));
         });
     }
 
