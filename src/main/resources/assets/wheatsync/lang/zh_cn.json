@@ -4,7 +4,7 @@
   "block.wheatsync.unnamed_standard_logistics_interface": "未命名标准物流接口",
   "title.wheatsync.standard_logistics_interface_placer": "方块放置者: ",
   "text.wheatsync.sli_set_communicationID_button": "设置",
-  "tooltip.wheatsync.sli_set_communicationID_button": "设置标准物流接口的频道, 不同服务器中满足：频道和放置者相同 的容器将会互相同步.",
+  "tooltip.wheatsync.sli_set_communicationID_button": "设置标准物流接口的频道\n不同服务器中满足：“频道和放置者相同”的容器将会互相同步.\n一个频道在一个服务器只能存在一个，重复设置频道将无效",
   "hint.wheatsync.sli_communicationID_input_box": "1~65535",
   "text.wheatsync.sli_communicationID_input_hint": "频道:",
   "notice.wheatsync.sli_error": "服务器错误",
