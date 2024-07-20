@@ -70,6 +70,14 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
         this.markDirty();
     }
 
+    public void setBLOCK_PLACER(UUID BLOCK_PLACER) {
+        this.BLOCK_PLACER = BLOCK_PLACER;
+    }
+
+    public void setBLOCK_PLACER_ID(String BLOCK_PLACER_ID) {
+        this.BLOCK_PLACER_ID = BLOCK_PLACER_ID;
+    }
+
     public boolean ifInventoryChanged() {
         if (getCommunicationID() == 0) return false;
         // 比较当前物品栏与快照

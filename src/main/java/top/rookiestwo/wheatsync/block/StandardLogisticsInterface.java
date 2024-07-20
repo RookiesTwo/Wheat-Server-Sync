@@ -18,14 +18,11 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
 import top.rookiestwo.wheatsync.events.AsyncAndEvents;
 
 public class StandardLogisticsInterface extends BlockWithEntity {
-
-    private LivingEntity blockPlacer = null;
 
     public StandardLogisticsInterface(Settings settings) {
         super(settings);
@@ -33,8 +30,7 @@ public class StandardLogisticsInterface extends BlockWithEntity {
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        WheatSync.LOGGER.info("Placer:" + blockPlacer);
-        return new StandardLogisticsInterfaceEntity(pos, state, blockPlacer);
+        return new StandardLogisticsInterfaceEntity(pos, state, null);
     }
 
     @Override
@@ -82,12 +78,16 @@ public class StandardLogisticsInterface extends BlockWithEntity {
         return ScreenHandler.calculateComparatorOutput(world.getBlockEntity(pos));
     }
 
+
     @Override
     public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack) {
         if (!world.isClient) {
-            blockPlacer = placer;
-            if (placer == null) {
-                world.breakBlock(pos, true);
+            BlockEntity entity = world.getBlockEntity(pos);
+            if (entity instanceof StandardLogisticsInterfaceEntity SLIEntity) {
+                if (placer instanceof PlayerEntity player) {
+                    SLIEntity.setBLOCK_PLACER(player.getUuid());
+                    SLIEntity.setBLOCK_PLACER_ID(player.getName().getString());
+                }
             }
         }
     }
