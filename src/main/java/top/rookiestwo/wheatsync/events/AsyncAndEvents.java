@@ -92,6 +92,7 @@ public class AsyncAndEvents {
                 // 如果数据库内存在此容器
                 WheatSync.LOGGER.info("ChangeID Detect");
                 if (WheatSync.databaseHelper.ifSLIExists(entity.getBLOCK_PLACER(), newID)) {
+                    WheatSync.sliCache.addOrUpdateSLICache(entity.getBLOCK_PLACER(), newID, entity.getInventory(), true);
                     WheatSync.databaseHelper.getSLIToCache(entity.getBLOCK_PLACER(), newID);
                     result.setLeft(true);
                 } else {
