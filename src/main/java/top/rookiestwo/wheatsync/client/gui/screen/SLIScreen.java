@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class SLIScreen extends HandledScreen<SLIScreenHandler> {
 
-    private static final Identifier TEXTURE = new Identifier(WheatSync.MOD_ID, "textures/gui/container/standard_logistics_interface.png");
+    private static final Identifier TEXTURE = new Identifier("minecraft", "textures/gui/container/shulker_box.png");
     private int communicationID;
     private boolean ifError = false;
 
@@ -98,7 +98,7 @@ public class SLIScreen extends HandledScreen<SLIScreenHandler> {
     @Override
     protected void init() {
         super.init();
-        playerInventoryTitleY = this.backgroundHeight - 111;
+        playerInventoryTitleY = this.backgroundHeight - 93;
         titleX = (backgroundWidth - textRenderer.getWidth(title)) / 2;
         AtomicInteger t = new AtomicInteger();
         if (title.getString().equals(Text.translatable("title.wheatsync.standard_logistics_interface_placer").getString() + "unknown player")) {
@@ -123,14 +123,14 @@ public class SLIScreen extends HandledScreen<SLIScreenHandler> {
                                     }
                                 }
                             })
-                    .dimensions(x + 132, y + 17, 26, 16)
+                    .dimensions(x + 132, y - 17, 26, 16)
                     .tooltip(Tooltip.of(Text.translatable("tooltip.wheatsync.sli_set_communicationID_button")))
                     .build();
 
             communicationIDInputBox = new TextFieldWidget(
                     this.textRenderer,
                     x + (backgroundWidth - 48) / 2 + 15,
-                    y + 18, 50, 14,
+                    y - 16, 50, 14,
                     Text.translatable("hint.wheatsync.sli_communicationID_input_box")
             );
 
@@ -140,8 +140,8 @@ public class SLIScreen extends HandledScreen<SLIScreenHandler> {
             );
 
             communicationIDText.setX(communicationIDInputBox.getX() - 2 - communicationIDText.getWidth());
-            communicationIDText.setY(y + 21);
-            communicationIDText.setTextColor(0x3F3F3F);
+            communicationIDText.setY(y - 13);
+            communicationIDText.setTextColor(0xF0F0F0);
 
             int communicationIDXShift = (width - (communicationIDText.getWidth() + communicationIDInputBox.getWidth() + setCommunicationIDButton.getWidth() + 4)) / 2 - communicationIDText.getX();
             communicationIDText.setX(communicationIDText.getX() + communicationIDXShift);

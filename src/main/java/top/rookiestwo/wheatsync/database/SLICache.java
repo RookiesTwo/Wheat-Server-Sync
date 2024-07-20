@@ -6,6 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.util.collection.DefaultedList;
+import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
 import top.rookiestwo.wheatsync.database.requests.UpdateInventoryRequest;
 
 import java.util.HashMap;
@@ -20,7 +21,7 @@ public class SLICache {
 
     public static Queue<UpdateInventoryRequest> updateInventoryRequestQueue = new ConcurrentLinkedQueue<>();
 
-    public static final String emptyInventory = serializeInventory(DefaultedList.ofSize(5, ItemStack.EMPTY));
+    public static final String emptyInventory = serializeInventory(DefaultedList.ofSize(StandardLogisticsInterfaceEntity.inventorySize, ItemStack.EMPTY));
 
     public static void addUpdateInventoryRequest(UpdateInventoryRequest request) {
         updateInventoryRequestQueue.add(request);
@@ -33,7 +34,7 @@ public class SLICache {
     }
 
     public static DefaultedList<ItemStack> unSerializeInventory(String inventoryString) {
-        DefaultedList<ItemStack> tempInv = DefaultedList.ofSize(5, ItemStack.EMPTY);
+        DefaultedList<ItemStack> tempInv = DefaultedList.ofSize(StandardLogisticsInterfaceEntity.inventorySize, ItemStack.EMPTY);
         try {
             NbtCompound nbt = StringNbtReader.parse(inventoryString);
             Inventories.readNbt(nbt, tempInv);
