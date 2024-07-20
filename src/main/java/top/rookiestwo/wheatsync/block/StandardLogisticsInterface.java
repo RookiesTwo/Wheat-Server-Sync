@@ -9,7 +9,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
@@ -39,11 +42,17 @@ public class StandardLogisticsInterface extends BlockWithEntity {
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient) {
             if (world.getBlockEntity(pos) instanceof StandardLogisticsInterfaceEntity SLIEntity) {
-                SLIEntity.setInventory(WheatSync.sliCache.getInventoryOf(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID()));
-                SLIEntity.copyInventoryToSnapshot();
-                NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
-                if (screenHandlerFactory != null) {
-                    player.openHandledScreen(screenHandlerFactory);
+                if (player instanceof ServerPlayerEntity serverPlayer) {
+                    if (serverPlayer.getUuid() != SLIEntity.getBLOCK_PLACER()) {
+                        serverPlayer.sendMessage(Text.translatable("message.wheatsync.sli.not_your_sli", SLIEntity.getBLOCK_PLACER_ID()).formatted(Formatting.RED), true);
+                        return ActionResult.FAIL;
+                    }
+                    SLIEntity.setInventory(WheatSync.sliCache.getInventoryOf(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID()));
+                    SLIEntity.copyInventoryToSnapshot();
+                    NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
+                    if (screenHandlerFactory != null) {
+                        player.openHandledScreen(screenHandlerFactory);
+                    }
                 }
             }
         }

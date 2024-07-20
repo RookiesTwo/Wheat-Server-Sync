@@ -64,6 +64,10 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
         return BLOCK_PLACER;
     }
 
+    public String getBLOCK_PLACER_ID() {
+        return BLOCK_PLACER_ID;
+    }
+
     public void setInventory(String inventory) {
         this.inventory = SLICache.unSerializeInventory(inventory);
         this.markDirty();

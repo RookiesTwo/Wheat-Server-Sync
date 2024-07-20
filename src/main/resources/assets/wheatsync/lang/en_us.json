@@ -8,5 +8,6 @@
   "hint.wheatsync.sli_communicationID_input_box": "1~65535",
   "text.wheatsync.sli_communicationID_input_hint": "Channel:",
   "notice.wheatsync.sli_error": "Server error",
-  "tooltip.wheatsync.sli_error": "Please break Standard Logistics Interface and place it again."
+  "tooltip.wheatsync.sli_error": "Please break Standard Logistics Interface and place it again.",
+  "message.wheatsync.sli.not_your_sli": "This is SLI of %s, you don't have permission to open it."
 }

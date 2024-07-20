@@ -85,7 +85,7 @@ public class AsyncAndEvents {
             //将否定信息传递给服务端
             return;
         }
-
+        WheatSync.sliCache.updateSLIInventory(entity.getBLOCK_PLACER(), entity.getCommunicationID(), SLICache.serializeInventory(entity.getInventory()));
         CompletableFuture.supplyAsync(() -> {
             try {
                 Pair<Boolean, Boolean> result = new Pair<>(false, false);
