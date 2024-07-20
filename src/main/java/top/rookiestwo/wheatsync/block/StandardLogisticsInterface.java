@@ -13,7 +13,6 @@ import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.ItemScatterer;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -54,12 +53,7 @@ public class StandardLogisticsInterface extends BlockWithEntity {
         if (state.getBlock() != newState.getBlock()) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof StandardLogisticsInterfaceEntity SLIEntity) {
-
                 AsyncAndEvents.onSLIBlockDestroyed(state, world, pos, newState, moved, SLIEntity, this);
-
-                ItemScatterer.spawn(world, pos, SLIEntity);
-                //WheatSync.sliCache.removeSLICache((StandardLogisticsInterfaceEntity) blockEntity);
-
             }
         }
     }

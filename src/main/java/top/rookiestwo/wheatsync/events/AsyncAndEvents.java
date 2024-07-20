@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 public class AsyncAndEvents {
     public static void register() {
         ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register((BlockEntity entity, ServerWorld world) -> {
-
+            if (!WheatSync.CONFIG.ifEnable) return;
             if (entity instanceof StandardLogisticsInterfaceEntity SLIEntity) {
                 ChunkPos chunkPos = new ChunkPos(entity.getPos());
                 if (!world.isChunkLoaded(chunkPos.toLong())) return;
@@ -43,6 +43,7 @@ public class AsyncAndEvents {
         });
 
         ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((BlockEntity entity, ServerWorld world) -> {
+            if (!WheatSync.CONFIG.ifEnable) return;
             if (entity instanceof StandardLogisticsInterfaceEntity SLIEntity) {
                 WheatSync.sliCache.setSLILoadingStatus(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID(), false);
             }
@@ -52,7 +53,7 @@ public class AsyncAndEvents {
             //配置文件
             WheatSync.CONFIG_MANAGER = new ConfigManager();
             WheatSync.CONFIG = WheatSync.CONFIG_MANAGER.getConfig();
-
+            if (!WheatSync.CONFIG.ifEnable) return;
             //database
             WheatSync.databaseHelper = new DatabaseHelper();
             WheatSync.sliCache = new SLICache();
@@ -60,6 +61,7 @@ public class AsyncAndEvents {
         });
 
         ServerTickEvents.START_SERVER_TICK.register((server) -> {
+            if (!WheatSync.CONFIG.ifEnable) return;
             /*CompletableFuture.supplyAsync(()->{
 
                 return true;
@@ -76,6 +78,7 @@ public class AsyncAndEvents {
             PacketSender responseSender
     ) {
         int newID = buf.readInt();
+        if (!WheatSync.CONFIG.ifEnable) return;
         SLIScreenHandler screenHandler = (SLIScreenHandler) player.currentScreenHandler;
         StandardLogisticsInterfaceEntity entity = screenHandler.getSLIEntity();
 
@@ -88,10 +91,9 @@ public class AsyncAndEvents {
             try {
                 Pair<Boolean, Boolean> result = new Pair<>(false, false);
                 // 如果数据库内存在此容器
-                WheatSync.LOGGER.info("ChangeID Detect");
                 if (WheatSync.databaseHelper.ifSLIExists(entity.getBLOCK_PLACER(), newID)) {
-                    WheatSync.databaseHelper.getSLIToCache(entity.getBLOCK_PLACER(), newID);
                     WheatSync.databaseHelper.updateSLIServerStatus(entity.getBLOCK_PLACER(), newID, true);
+                    WheatSync.databaseHelper.getSLIToCache(entity.getBLOCK_PLACER(), newID);
                     result.setLeft(true);
                 } else {
                     WheatSync.sliCache.addOrUpdateSLICache(entity.getBLOCK_PLACER(), newID, entity.getInventory(), false);
@@ -117,7 +119,6 @@ public class AsyncAndEvents {
             // 将其他服务器存在的容器从缓存写入物品栏
             server.executeSync(() -> {
                 if (result.getLeft()) {
-                    WheatSync.LOGGER.info("Write To Inventory");
                     entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), newID));
                 }
                 //爆金币
@@ -136,13 +137,16 @@ public class AsyncAndEvents {
     }
 
     public static void onSLIBlockDestroyed(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved, StandardLogisticsInterfaceEntity entity, StandardLogisticsInterface block) {
+        if (!WheatSync.CONFIG.ifEnable) return;
         CompletableFuture.supplyAsync(() -> {
             if (!world.isClient) {
                 if (WheatSync.sliCache.ifOnOtherServer(entity.getBLOCK_PLACER(), entity.getCommunicationID())) {
+                    //如果在其他服务器存在此容器
                     WheatSync.databaseHelper.updateSLIServerStatus(entity.getBLOCK_PLACER(), entity.getCommunicationID(), false);
                     WheatSync.sliCache.setSLILoadingStatus(entity.getBLOCK_PLACER(), entity.getCommunicationID(), false);
                     return true;
                 }
+                //如果其他服务器不存在
                 WheatSync.databaseHelper.deleteSLIRecord(entity.getBLOCK_PLACER(), entity.getCommunicationID());
                 return false;
             }
@@ -162,6 +166,7 @@ public class AsyncAndEvents {
     }
 
     public static void runAfterLogic() throws InterruptedException, SQLException {
+        if (!WheatSync.CONFIG.ifEnable) return;
         CompletableFuture.supplyAsync(() -> {
             WheatSync.databaseHelper.processUpdateInventoryQueue();
             return true;

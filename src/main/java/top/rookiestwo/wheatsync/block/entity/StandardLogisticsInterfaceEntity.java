@@ -118,6 +118,7 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
     }
 
     public static void tick(World world, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+        if (!WheatSync.CONFIG.ifEnable) return;
         if (blockEntity instanceof StandardLogisticsInterfaceEntity entity) {
             if (entity.getCommunicationID() != 0) {
                 if (entity.ifInventoryChanged()) {
@@ -139,7 +140,6 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
         CommunicationID = nbt.getInt("CommunicationID");
         //Inventories.readNbt(nbt, this.inventory);
 
-        WheatSync.LOGGER.info("Read {}", nbt.toString());
     }
 
     @Override

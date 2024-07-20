@@ -69,7 +69,7 @@ public class DatabaseHelper {
     public void loadSLIEntitiesFromDatabaseToCache() {
         String serverNameColumn = WheatSync.CONFIG.ServerName;
         try (PreparedStatement stmt = connection.prepareStatement(
-                "SELECT player_uuid, communication_id, inventory FROM sli_contents WHERE `" + serverNameColumn.toLowerCase() + "` = TRUE")) {
+                "SELECT * FROM sli_contents WHERE `" + serverNameColumn.toLowerCase() + "` = TRUE")) {
             ResultSet resultSet = stmt.executeQuery();
             while (resultSet.next()) {
                 UUID playerUUID = UUID.fromString(resultSet.getString("player_uuid"));
@@ -102,7 +102,7 @@ public class DatabaseHelper {
     public void getSLIToCache(UUID playerUUID, int communicationID) {
         // 如果缓存中没有SLI状态，从数据库查询并检查是否在其他服务器上
         try (PreparedStatement stmt = connection.prepareStatement(
-                "SELECT inventory FROM sli_contents WHERE player_uuid = ? AND communication_id = ?")) {
+                "SELECT * FROM sli_contents WHERE player_uuid = ? AND communication_id = ?")) {
             stmt.setString(1, playerUUID.toString());
             stmt.setInt(2, communicationID);
             ResultSet resultSet = stmt.executeQuery();
@@ -158,7 +158,7 @@ public class DatabaseHelper {
         if (SLICache.updateInventoryRequestQueue.isEmpty()) return;
         UpdateInventoryRequest request = null;
         try (PreparedStatement pstmt = connection.prepareStatement("UPDATE sli_contents SET inventory = ? WHERE player_uuid = ? AND communication_id = ?")) {
-            WheatSync.LOGGER.info("Update Inventory Request");
+
             while ((request = SLICache.updateInventoryRequestQueue.poll()) != null) {
                 pstmt.setString(1, request.newInventory);
                 pstmt.setString(2, request.playerUUID.toString());

@@ -6,13 +6,16 @@ import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.block.MapColor;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.block.enums.Instrument;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 import top.rookiestwo.wheatsync.block.StandardLogisticsInterface;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
@@ -40,7 +43,7 @@ public class WheatSyncRegistry {
         STANDARD_LOGISTICS_INTERFACE_BLOCK = Registry.register(
                 Registries.BLOCK,
                 SLI,
-                new StandardLogisticsInterface(FabricBlockSettings.copyOf(net.minecraft.block.Blocks.CHEST))
+                new StandardLogisticsInterface(FabricBlockSettings.create().mapColor(MapColor.OAK_TAN).instrument(Instrument.BASS).strength(2.5f).sounds(BlockSoundGroup.WOOD).requiresTool())
         );
         STANDARD_LOGISTICS_INTERFACE_BLOCK_ITEM = Registry.register(
                 Registries.ITEM,
