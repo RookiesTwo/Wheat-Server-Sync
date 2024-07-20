@@ -35,8 +35,8 @@ public class AsyncAndEvents {
                 ChunkPos chunkPos = new ChunkPos(entity.getPos());
                 if (!world.isChunkLoaded(chunkPos.toLong())) return;
                 if (SLIEntity.getCommunicationID() == 0) return;
-                SLIEntity.setInventory(WheatSync.sliCache.getInventoryOf(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID()));
-                SLIEntity.copyInventoryToSnapshot();
+                //SLIEntity.setInventory(WheatSync.sliCache.getInventoryOf(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID()));
+                //SLIEntity.copyInventoryToSnapshot();
                 WheatSync.sliCache.setSLILoadingStatus(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID(), true);
             }
 
@@ -62,11 +62,10 @@ public class AsyncAndEvents {
 
         ServerTickEvents.START_SERVER_TICK.register((server) -> {
             if (!WheatSync.CONFIG.ifEnable) return;
-            /*CompletableFuture.supplyAsync(()->{
-
+            CompletableFuture.supplyAsync(() -> {
+                WheatSync.databaseHelper.loadSLIEntitiesFromDatabaseToCache();
                 return true;
-            },WheatSync.asyncExecutor);*/
-            WheatSync.databaseHelper.loadSLIEntitiesFromDatabaseToCache();
+            }, WheatSync.asyncExecutor);
         });
     }
 
@@ -157,7 +156,8 @@ public class AsyncAndEvents {
             if (world instanceof ServerWorld) {
                 MinecraftServer server = world.getServer();
                 server.executeSync(() -> {
-                    if (!result) ItemScatterer.spawn(world, pos, entity);
+                    if (!result)
+                        ItemScatterer.spawn(world, pos, SLICache.unSerializeInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), entity.getCommunicationID())));
                     block.superOnStateReplaced(state, world, pos, newState, moved);
                     WheatSync.sliCache.removeSLI(entity.getBLOCK_PLACER(), entity.getCommunicationID());
                     world.updateComparators(pos, block);

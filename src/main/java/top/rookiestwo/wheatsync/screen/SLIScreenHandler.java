@@ -8,8 +8,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.server.network.ServerPlayerEntity;
+import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
+import top.rookiestwo.wheatsync.database.SLICache;
 
 import java.util.UUID;
 
@@ -87,6 +90,19 @@ public class SLIScreenHandler extends ScreenHandler {
 
     public StandardLogisticsInterfaceEntity getSLIEntity() {
         return SLIEntity;
+    }
+
+    @Override
+    public void onClosed(PlayerEntity player) {
+        if (player instanceof ServerPlayerEntity) {
+            if (SLIEntity != null) {
+                if (SLIEntity.ifInventoryChanged()) {
+                    WheatSync.sliCache.updateSLIInventory(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID(), SLICache.serializeInventory(SLIEntity.getInventory()));
+                    SLIEntity.clear();
+                }
+            }
+        }
+        super.onClosed(player);
     }
 
     @Override

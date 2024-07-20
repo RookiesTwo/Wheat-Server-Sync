@@ -14,9 +14,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
 import top.rookiestwo.wheatsync.api.LogisticsInterfaceInventory;
 import top.rookiestwo.wheatsync.database.SLICache;
@@ -118,17 +116,6 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
         return inventory;
     }
 
-    public static void tick(World world, BlockPos pos, BlockState state, BlockEntity blockEntity) {
-        if (!WheatSync.CONFIG.ifEnable) return;
-        if (blockEntity instanceof StandardLogisticsInterfaceEntity entity) {
-            if (entity.getCommunicationID() != 0) {
-                if (entity.ifInventoryChanged()) {
-                    WheatSync.sliCache.updateSLIInventory(entity.getBLOCK_PLACER(), entity.getCommunicationID(), SLICache.serializeInventory(entity.getInventory()));
-                }
-                entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), entity.getCommunicationID()));
-            }
-        }
-    }
 
     @Override
     public void readNbt(NbtCompound nbt) {
