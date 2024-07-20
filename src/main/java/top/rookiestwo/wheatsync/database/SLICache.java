@@ -103,11 +103,9 @@ public class SLICache {
     }
 
     public void setSLILoadingStatus(UUID playerUUID, int communicationID, boolean status) {
-        Map<Integer, SLIStatus> playerCache = cache.get(playerUUID);
-        if (playerCache == null) {
-            return;
-        }
-        playerCache.get(communicationID).isLoaded = status;
+        if (cache.get(playerUUID) == null) ;
+        if (cache.get(playerUUID).get(communicationID) == null) return;
+        cache.get(playerUUID).get(communicationID).isLoaded = status;
     }
 
     public boolean ifSLIExists(UUID playerUUID, int communicationID) {

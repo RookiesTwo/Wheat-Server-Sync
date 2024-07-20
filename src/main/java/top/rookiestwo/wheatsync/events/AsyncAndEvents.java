@@ -90,22 +90,24 @@ public class AsyncAndEvents {
         CompletableFuture.supplyAsync(() -> {
             try {
                 Pair<Boolean, Boolean> result = new Pair<>(false, false);
-                // 如果数据库内存在此容器
                 if (WheatSync.databaseHelper.ifSLIExists(entity.getBLOCK_PLACER(), newID)) {
+                    // 如果数据库内存在新容器
                     WheatSync.databaseHelper.updateSLIServerStatus(entity.getBLOCK_PLACER(), newID, true);
                     WheatSync.databaseHelper.getSLIToCache(entity.getBLOCK_PLACER(), newID);
                     result.setLeft(true);
                 } else {
+                    // 数据库内不存在新容器
                     WheatSync.sliCache.addOrUpdateSLICache(entity.getBLOCK_PLACER(), newID, entity.getInventory(), false);
                     WheatSync.databaseHelper.createSLIRecord(entity.getBLOCK_PLACER(), newID, SLICache.serializeInventory(entity.getInventory()));
                 }
                 //如果老ID不为0，对老容器的处理
                 if (entity.getCommunicationID() != 0) {
-                    //如果在其他服务器存在
                     if (WheatSync.sliCache.ifOnOtherServer(entity.getBLOCK_PLACER(), entity.getCommunicationID())) {
+                        //老容器如果在其他服务器存在
                         WheatSync.databaseHelper.updateSLIServerStatus(entity.getBLOCK_PLACER(), entity.getCommunicationID(), false);
                         WheatSync.sliCache.removeSLI(entity.getBLOCK_PLACER(), entity.getCommunicationID());
                     } else {
+                        //老容器如果在其他服务器不存在
                         WheatSync.databaseHelper.deleteSLIRecord(entity.getBLOCK_PLACER(), entity.getCommunicationID());
                         result.setRight(true);
                     }
@@ -122,7 +124,7 @@ public class AsyncAndEvents {
                     entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), newID));
                 }
                 //爆金币
-                if (result.getRight()) {
+                if (result.getRight() || (!result.getLeft() && !result.getRight())) {
                     entity.clear();
                     ItemScatterer.spawn(player.getWorld(), player.getBlockPos(), SLICache.unSerializeInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), entity.getCommunicationID())));
                     WheatSync.sliCache.removeSLI(entity.getBLOCK_PLACER(), entity.getCommunicationID());
