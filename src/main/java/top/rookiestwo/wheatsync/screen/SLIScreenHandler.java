@@ -94,12 +94,12 @@ public class SLIScreenHandler extends ScreenHandler {
 
     @Override
     public void onClosed(PlayerEntity player) {
-        if (player instanceof ServerPlayerEntity) {
+        if (player instanceof ServerPlayerEntity serverPlayer) {
             if (SLIEntity != null) {
                 if (SLIEntity.ifInventoryChanged()) {
                     WheatSync.sliCache.updateSLIInventory(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID(), SLICache.serializeInventory(SLIEntity.getInventory()));
-                    SLIEntity.clear();
                 }
+                SLIEntity.clear();
             }
         }
         super.onClosed(player);
