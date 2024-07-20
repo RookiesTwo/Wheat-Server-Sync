@@ -4,7 +4,7 @@
   "block.wheatsync.unnamed_standard_logistics_interface": "Unnamed Standard logistics interface",
   "title.wheatsync.standard_logistics_interface_placer": "SLI Placer: ",
   "text.wheatsync.sli_set_communicationID_button": "Set",
-  "tooltip.wheatsync.sli_set_communicationID_button": "Set the channel of this SLI, which will help cross-server sync.",
+  "tooltip.wheatsync.sli_set_communicationID_button": "Set SLI channel.\nContainers on different servers with the same channel and placer will synchronize with each other.\nA channel can only exist once per server; setting a duplicate channel will have no effect.",
   "hint.wheatsync.sli_communicationID_input_box": "1~65535",
   "text.wheatsync.sli_communicationID_input_hint": "Channel:",
   "notice.wheatsync.sli_error": "Server error",
