@@ -88,18 +88,18 @@ public class AsyncAndEvents {
         CompletableFuture.supplyAsync(() -> {
             try {
                 Pair<Boolean, Boolean> result = new Pair<>(false, false);
-                if (WheatSync.databaseHelper.ifSLIExists(entity.getBLOCK_PLACER(), newID)) {
-                    // 如果数据库内存在新容器
-                    WheatSync.databaseHelper.updateSLIServerStatus(entity.getBLOCK_PLACER(), newID, true);
-                    WheatSync.databaseHelper.getSLIToCache(entity.getBLOCK_PLACER(), newID);
-                    result.setLeft(true);
-                } else {
-                    // 数据库内不存在新容器
-                    WheatSync.sliCache.addOrUpdateSLICache(entity.getBLOCK_PLACER(), newID, entity.getInventory(), false);
-                    WheatSync.databaseHelper.createSLIRecord(entity.getBLOCK_PLACER(), newID, SLICache.serializeInventory(entity.getInventory()));
-                }
-                //如果老ID不为0，对老容器的处理
                 if (entity.getCommunicationID() != 0) {
+                    if (WheatSync.databaseHelper.ifSLIExists(entity.getBLOCK_PLACER(), newID)) {
+                        // 如果数据库内存在新容器
+                        WheatSync.databaseHelper.updateSLIServerStatus(entity.getBLOCK_PLACER(), newID, true);
+                        WheatSync.databaseHelper.getSLIToCache(entity.getBLOCK_PLACER(), newID);
+                        result.setLeft(true);
+                    } else {
+                        // 数据库内不存在新容器
+                        WheatSync.sliCache.addOrUpdateSLICache(entity.getBLOCK_PLACER(), newID, SLICache.emptyInventory, false);
+                        WheatSync.databaseHelper.createSLIRecord(entity.getBLOCK_PLACER(), newID, SLICache.emptyInventory);
+                    }
+                    //对老容器的处理
                     if (WheatSync.sliCache.ifOnOtherServer(entity.getBLOCK_PLACER(), entity.getCommunicationID())) {
                         //老容器如果在其他服务器存在
                         WheatSync.databaseHelper.updateSLIServerStatus(entity.getBLOCK_PLACER(), entity.getCommunicationID(), false);
@@ -107,9 +107,22 @@ public class AsyncAndEvents {
                     } else {
                         //老容器如果在其他服务器不存在
                         WheatSync.databaseHelper.deleteSLIRecord(entity.getBLOCK_PLACER(), entity.getCommunicationID());
+                        WheatSync.sliCache.addOrUpdateSLICache(entity.getBLOCK_PLACER(), entity.getCommunicationID(), SLICache.serializeInventory(entity.getInventory()), false);
                         result.setRight(true);
                     }
+                } else {
+                    if (WheatSync.databaseHelper.ifSLIExists(entity.getBLOCK_PLACER(), newID)) {
+                        // 如果数据库内存在新容器
+                        WheatSync.databaseHelper.updateSLIServerStatus(entity.getBLOCK_PLACER(), newID, true);
+                        WheatSync.databaseHelper.getSLIToCache(entity.getBLOCK_PLACER(), newID);
+                        result.setLeft(true);
+                    } else {
+                        // 数据库内不存在新容器
+                        WheatSync.sliCache.addOrUpdateSLICache(entity.getBLOCK_PLACER(), newID, entity.getInventory(), false);
+                        WheatSync.databaseHelper.createSLIRecord(entity.getBLOCK_PLACER(), newID, SLICache.serializeInventory(entity.getInventory()));
+                    }
                 }
+
                 return result;
             } catch (Exception e) {
                 WheatSync.LOGGER.error("Error processing async operation", e);
@@ -118,15 +131,23 @@ public class AsyncAndEvents {
         }, WheatSync.asyncExecutor).thenAccept((result) -> {
             // 将其他服务器存在的容器从缓存写入物品栏
             server.executeSync(() -> {
-                if (result.getLeft()) {
-                    entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), newID));
-                }
                 //爆金币
-                if (result.getRight() || (!result.getLeft() && !result.getRight())) {
-                    entity.clear();
-                    ItemScatterer.spawn(player.getWorld(), player.getBlockPos(), SLICache.unSerializeInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), entity.getCommunicationID())));
-                    WheatSync.sliCache.removeSLI(entity.getBLOCK_PLACER(), entity.getCommunicationID());
-                    entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), newID));
+                if (entity.getCommunicationID() != 0) {
+                    if (result.getRight()) {
+                        entity.clear();
+                        ItemScatterer.spawn(player.getWorld(), player.getBlockPos(), SLICache.unSerializeInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), entity.getCommunicationID())));
+                        WheatSync.sliCache.removeSLI(entity.getBLOCK_PLACER(), entity.getCommunicationID());
+                    }
+                    if (result.getLeft() || (!result.getLeft() && !result.getRight())) {
+                        entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), newID));
+                        entity.copyInventoryToSnapshot();
+                    }
+                } else {
+                    if (result.getLeft()) {
+                        ItemScatterer.spawn(player.getWorld(), player.getBlockPos(), entity.getInventory());
+                        entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), newID));
+                        entity.copyInventoryToSnapshot();
+                    }
                 }
                 entity.setCommunicationID(newID);
                 entity.markDirty();

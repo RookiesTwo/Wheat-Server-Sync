@@ -43,7 +43,7 @@ public class StandardLogisticsInterface extends BlockWithEntity {
         if (!world.isClient) {
             if (world.getBlockEntity(pos) instanceof StandardLogisticsInterfaceEntity SLIEntity) {
                 if (player instanceof ServerPlayerEntity serverPlayer) {
-                    if (serverPlayer.getUuid() != SLIEntity.getBLOCK_PLACER()) {
+                    if (!serverPlayer.getUuid().equals(SLIEntity.getBLOCK_PLACER())) {
                         serverPlayer.sendMessage(Text.translatable("message.wheatsync.sli.not_your_sli", SLIEntity.getBLOCK_PLACER_ID()).formatted(Formatting.RED), true);
                         return ActionResult.FAIL;
                     }
