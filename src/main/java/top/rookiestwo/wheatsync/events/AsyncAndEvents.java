@@ -85,7 +85,6 @@ public class AsyncAndEvents {
             //将否定信息传递给服务端
             return;
         }
-        WheatSync.sliCache.updateSLIInventory(entity.getBLOCK_PLACER(), entity.getCommunicationID(), SLICache.serializeInventory(entity.getInventory()));
         CompletableFuture.supplyAsync(() -> {
             try {
                 Pair<Boolean, Boolean> result = new Pair<>(false, false);
@@ -127,6 +126,7 @@ public class AsyncAndEvents {
                     entity.clear();
                     ItemScatterer.spawn(player.getWorld(), player.getBlockPos(), SLICache.unSerializeInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), entity.getCommunicationID())));
                     WheatSync.sliCache.removeSLI(entity.getBLOCK_PLACER(), entity.getCommunicationID());
+                    entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), newID));
                 }
                 entity.setCommunicationID(newID);
                 entity.markDirty();
