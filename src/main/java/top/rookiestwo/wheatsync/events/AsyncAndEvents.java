@@ -43,11 +43,9 @@ public class AsyncAndEvents {
         });
 
         ServerBlockEntityEvents.BLOCK_ENTITY_UNLOAD.register((BlockEntity entity, ServerWorld world) -> {
-
             if (entity instanceof StandardLogisticsInterfaceEntity SLIEntity) {
                 WheatSync.sliCache.setSLILoadingStatus(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID(), false);
             }
-
         });
 
         ServerLifecycleEvents.SERVER_STARTING.register((server) -> {
@@ -92,8 +90,8 @@ public class AsyncAndEvents {
                 // 如果数据库内存在此容器
                 WheatSync.LOGGER.info("ChangeID Detect");
                 if (WheatSync.databaseHelper.ifSLIExists(entity.getBLOCK_PLACER(), newID)) {
-                    WheatSync.sliCache.addOrUpdateSLICache(entity.getBLOCK_PLACER(), newID, entity.getInventory(), true);
                     WheatSync.databaseHelper.getSLIToCache(entity.getBLOCK_PLACER(), newID);
+                    WheatSync.databaseHelper.updateSLIServerStatus(entity.getBLOCK_PLACER(), newID, true);
                     result.setLeft(true);
                 } else {
                     WheatSync.sliCache.addOrUpdateSLICache(entity.getBLOCK_PLACER(), newID, entity.getInventory(), false);

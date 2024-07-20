@@ -20,6 +20,8 @@ public class SLICache {
 
     public static Queue<UpdateInventoryRequest> updateInventoryRequestQueue = new ConcurrentLinkedQueue<>();
 
+    public static final String emptyInventory = serializeInventory(DefaultedList.ofSize(5, ItemStack.EMPTY));
+
     public static void addUpdateInventoryRequest(UpdateInventoryRequest request) {
         updateInventoryRequestQueue.add(request);
     }
@@ -88,11 +90,15 @@ public class SLICache {
         addUpdateInventoryRequest(new UpdateInventoryRequest(playerUUID, communicationID, status.Inventory));
     }
 
-    public boolean ifOnOtherServer(UUID playeUUID, int communicationID) {
-        return cache.get(playeUUID).get(communicationID).ifOnOtherServer;
+    public boolean ifOnOtherServer(UUID playerUUID, int communicationID) {
+        if (cache.get(playerUUID) == null) return false;
+        if (cache.get(playerUUID).get(communicationID) == null) return false;
+        return cache.get(playerUUID).get(communicationID).ifOnOtherServer;
     }
 
     public String getInventoryOf(UUID playerUUID, int communicationID) {
+        if (cache.get(playerUUID) == null) return emptyInventory;
+        if (cache.get(playerUUID).get(communicationID) == null) return emptyInventory;
         return cache.get(playerUUID).get(communicationID).Inventory;
     }
 
