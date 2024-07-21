@@ -8,8 +8,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.server.network.ServerPlayerEntity;
+import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
+import top.rookiestwo.wheatsync.database.SLICache;
 
 import java.util.UUID;
 
@@ -17,7 +20,7 @@ import java.util.UUID;
 //SLI is short of StandardLogisticsInterface.
 public class SLIScreenHandler extends ScreenHandler {
 
-    public static final int SLOT_COUNT = 5;
+    public static final int SLOT_COUNT = 27;
     private final Inventory inventory;
 
     private int communicationID;
@@ -47,20 +50,20 @@ public class SLIScreenHandler extends ScreenHandler {
         int m;//height
         int l;//width
         //SLI inventory
-        for (m = 0; m < 1; ++m) {
-            for (l = 0; l < SLOT_COUNT; ++l) {
-                this.addSlot(new Slot(inventory, l + m * 3, 44 + l * 18, 36 + m * 18));
+        for (m = 0; m < 3; ++m) {
+            for (l = 0; l < 9; ++l) {
+                this.addSlot(new Slot(inventory, l + m * 9, 8 + l * 18, 18 + m * 18));
             }
         }
         //The player inventory
         for (m = 0; m < 3; ++m) {
             for (l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(playerInventory, l + m * 9 + 9, 8 + l * 18, 67 + m * 18));
+                this.addSlot(new Slot(playerInventory, l + m * 9 + 9, 8 + l * 18, 84 + m * 18));
             }
         }
         //The player Hotbar
         for (m = 0; m < 9; ++m) {
-            this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 125));
+            this.addSlot(new Slot(playerInventory, m, 8 + m * 18, 142));
         }
         communicationID = 0;
         placerUUID = UUID.randomUUID();
@@ -87,6 +90,19 @@ public class SLIScreenHandler extends ScreenHandler {
 
     public StandardLogisticsInterfaceEntity getSLIEntity() {
         return SLIEntity;
+    }
+
+    @Override
+    public void onClosed(PlayerEntity player) {
+        if (player instanceof ServerPlayerEntity) {
+            if (SLIEntity != null) {
+                if (SLIEntity.ifInventoryChanged()) {
+                    WheatSync.sliCache.updateSLIInventory(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID(), SLICache.serializeInventory(SLIEntity.getInventory()));
+                }
+                if (SLIEntity.getCommunicationID() != 0) SLIEntity.clear();
+            }
+        }
+        super.onClosed(player);
     }
 
     @Override

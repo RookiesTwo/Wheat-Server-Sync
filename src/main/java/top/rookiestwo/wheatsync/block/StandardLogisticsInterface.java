@@ -4,20 +4,21 @@ import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.screen.ScreenHandler;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import top.rookiestwo.wheatsync.WheatSyncRegistry;
+import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.block.entity.StandardLogisticsInterfaceEntity;
 import top.rookiestwo.wheatsync.events.AsyncAndEvents;
 
@@ -40,9 +41,19 @@ public class StandardLogisticsInterface extends BlockWithEntity {
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         if (!world.isClient) {
-            NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
-            if (screenHandlerFactory != null) {
-                player.openHandledScreen(screenHandlerFactory);
+            if (world.getBlockEntity(pos) instanceof StandardLogisticsInterfaceEntity SLIEntity) {
+                if (player instanceof ServerPlayerEntity serverPlayer) {
+                    if (!serverPlayer.getUuid().equals(SLIEntity.getBLOCK_PLACER())) {
+                        serverPlayer.sendMessage(Text.translatable("message.wheatsync.sli.not_your_sli", SLIEntity.getBLOCK_PLACER_ID()).formatted(Formatting.RED), true);
+                        return ActionResult.FAIL;
+                    }
+                    SLIEntity.setInventory(WheatSync.sliCache.getInventoryOf(SLIEntity.getBLOCK_PLACER(), SLIEntity.getCommunicationID()));
+                    SLIEntity.copyInventoryToSnapshot();
+                    NamedScreenHandlerFactory screenHandlerFactory = state.createScreenHandlerFactory(world, pos);
+                    if (screenHandlerFactory != null) {
+                        player.openHandledScreen(screenHandlerFactory);
+                    }
+                }
             }
         }
         return ActionResult.SUCCESS;
@@ -86,10 +97,4 @@ public class StandardLogisticsInterface extends BlockWithEntity {
         }
     }
 
-    @Override
-    @Nullable
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        if (world.isClient) return null;
-        return StandardLogisticsInterface.checkType(type, WheatSyncRegistry.STANDARD_LOGISTICS_INTERFACE_BLOCK_ENTITY, StandardLogisticsInterfaceEntity::tick);
-    }
 }

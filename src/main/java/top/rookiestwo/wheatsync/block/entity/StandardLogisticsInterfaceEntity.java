@@ -14,9 +14,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.WheatSyncRegistry;
 import top.rookiestwo.wheatsync.api.LogisticsInterfaceInventory;
 import top.rookiestwo.wheatsync.database.SLICache;
@@ -26,9 +24,10 @@ import java.util.UUID;
 
 public class StandardLogisticsInterfaceEntity extends BlockEntity implements ExtendedScreenHandlerFactory, LogisticsInterfaceInventory {
 
-    private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(5, ItemStack.EMPTY);
-    private DefaultedList<ItemStack> inventorySnapshot = DefaultedList.ofSize(5, ItemStack.EMPTY);
-    private final short inventorySize = 5;
+    public static final short inventorySize = 27;
+    private DefaultedList<ItemStack> inventory = DefaultedList.ofSize(inventorySize, ItemStack.EMPTY);
+    private DefaultedList<ItemStack> inventorySnapshot = DefaultedList.ofSize(inventorySize, ItemStack.EMPTY);
+
 
     private int CommunicationID = 0;
     private UUID BLOCK_PLACER;
@@ -63,6 +62,10 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
 
     public UUID getBLOCK_PLACER() {
         return BLOCK_PLACER;
+    }
+
+    public String getBLOCK_PLACER_ID() {
+        return BLOCK_PLACER_ID;
     }
 
     public void setInventory(String inventory) {
@@ -117,17 +120,6 @@ public class StandardLogisticsInterfaceEntity extends BlockEntity implements Ext
         return inventory;
     }
 
-    public static void tick(World world, BlockPos pos, BlockState state, BlockEntity blockEntity) {
-        if (!WheatSync.CONFIG.ifEnable) return;
-        if (blockEntity instanceof StandardLogisticsInterfaceEntity entity) {
-            if (entity.getCommunicationID() != 0) {
-                if (entity.ifInventoryChanged()) {
-                    WheatSync.sliCache.updateSLIInventory(entity.getBLOCK_PLACER(), entity.getCommunicationID(), SLICache.serializeInventory(entity.getInventory()));
-                }
-                entity.setInventory(WheatSync.sliCache.getInventoryOf(entity.getBLOCK_PLACER(), entity.getCommunicationID()));
-            }
-        }
-    }
 
     @Override
     public void readNbt(NbtCompound nbt) {

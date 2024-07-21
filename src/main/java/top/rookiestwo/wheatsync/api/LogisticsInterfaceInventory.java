@@ -88,6 +88,11 @@ public interface LogisticsInterfaceInventory extends Inventory {
         return Inventories.removeStack(getItems(), slot);
     }
 
+    @Override
+    default boolean canTransferTo(Inventory hopperInventory, int slot, ItemStack stack) {
+        return false;
+    }
+
     /**
      * 将物品栏槽位中的当前物品堆替换为提供的物品堆。
      *

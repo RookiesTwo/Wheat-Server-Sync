@@ -2,11 +2,12 @@
   "block.wheatsync.inter_server_portal_stone": "Inter Server Portal Stone",
   "block.wheatsync.standard_logistics_interface_block": "Standard logistics interface",
   "block.wheatsync.unnamed_standard_logistics_interface": "Unnamed Standard logistics interface",
-  "title.wheatsync.standard_logistics_interface_placer": "SLI Placer: ",
+  "title.wheatsync.standard_logistics_interface_placer": "Container Placer: ",
   "text.wheatsync.sli_set_communicationID_button": "Set",
   "tooltip.wheatsync.sli_set_communicationID_button": "Set SLI channel.\nContainers on different servers with the same channel and placer will synchronize with each other.\nA channel can only exist once per server; setting a duplicate channel will have no effect.",
   "hint.wheatsync.sli_communicationID_input_box": "1~65535",
   "text.wheatsync.sli_communicationID_input_hint": "Channel:",
   "notice.wheatsync.sli_error": "Server error",
-  "tooltip.wheatsync.sli_error": "Please break Standard Logistics Interface and place it again."
+  "tooltip.wheatsync.sli_error": "Please break Standard Logistics Interface and place it again.",
+  "message.wheatsync.sli.not_your_sli": "This is SLI of %s, you don't have permission to open it."
 }
