@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import top.rookiestwo.wheatsync.WheatSync;
 import top.rookiestwo.wheatsync.events.AsyncAndEvents;
 
 @Mixin(WorldSaveHandler.class)
@@ -25,6 +26,7 @@ public class WorldSaveHandlerMixin {
             ordinal = 0
     )
     private NbtCompound modifyNbtCompound$WheatSync(NbtCompound nbt) throws CommandSyntaxException {
+        if (!WheatSync.CONFIG.ifEnable) return nbt;
         AsyncAndEvents.onPlayerDataLoad(nbt);
         return nbt;
     }
@@ -38,6 +40,7 @@ public class WorldSaveHandlerMixin {
             )
     )
     private void onWriteNbt$WheatSync(PlayerEntity player, CallbackInfo ci, @Local NbtCompound nbt) {
+        if (!WheatSync.CONFIG.ifEnable) return;
         AsyncAndEvents.onPlayerDataSave(nbt);
     }
 
