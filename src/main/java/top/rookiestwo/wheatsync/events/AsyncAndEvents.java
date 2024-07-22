@@ -65,6 +65,11 @@ public class AsyncAndEvents {
             WheatSync.databaseHelper.loadSLIEntitiesFromDatabaseToCache();
         });
 
+        ServerLifecycleEvents.SERVER_STOPPING.register((server -> {
+            //释放线程
+            WheatSync.asyncExecutor.shutdown();
+        }));
+
         ServerTickEvents.START_SERVER_TICK.register((server) -> {
             if (!WheatSync.CONFIG.ifEnable) return;
             CompletableFuture.supplyAsync(() -> {
