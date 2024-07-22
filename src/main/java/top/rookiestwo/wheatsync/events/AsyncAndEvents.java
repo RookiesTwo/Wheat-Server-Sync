@@ -65,7 +65,7 @@ public class AsyncAndEvents {
             WheatSync.databaseHelper.loadSLIEntitiesFromDatabaseToCache();
         });
 
-        ServerLifecycleEvents.SERVER_STOPPING.register((server -> {
+        ServerLifecycleEvents.SERVER_STOPPED.register((server -> {
             //释放线程
             WheatSync.asyncExecutor.shutdown();
         }));
