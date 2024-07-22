@@ -206,6 +206,10 @@ public class AsyncAndEvents {
     public static void onPlayerDataSave(NbtCompound nbt) {
         CompletableFuture.supplyAsync(() -> {
             NbtCompound nbt2 = nbt.copy();
+            //remove blacklisted elements
+            for (int i = 0; i < WheatSync.CONFIG.PlayerSyncBlackList.size(); i++) {
+                nbt2.remove(WheatSync.CONFIG.PlayerSyncBlackList.get(i));
+            }
             WheatSync.databaseHelper.updatePlayerData(nbt2.getUuid("UUID"), nbt2.toString());
             return true;
         }, WheatSync.asyncExecutor);
