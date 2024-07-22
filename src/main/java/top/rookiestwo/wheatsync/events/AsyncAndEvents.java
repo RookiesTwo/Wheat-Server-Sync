@@ -1,5 +1,6 @@
 package top.rookiestwo.wheatsync.events;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -7,6 +8,8 @@ import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
@@ -25,10 +28,12 @@ import top.rookiestwo.wheatsync.database.SLICache;
 import top.rookiestwo.wheatsync.screen.SLIScreenHandler;
 
 import java.sql.SQLException;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class AsyncAndEvents {
     public static void register() {
+
         ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register((BlockEntity entity, ServerWorld world) -> {
             if (!WheatSync.CONFIG.ifEnable) return;
             if (entity instanceof StandardLogisticsInterfaceEntity SLIEntity) {
@@ -67,6 +72,8 @@ public class AsyncAndEvents {
                 return true;
             }, WheatSync.asyncExecutor);
         });
+
+
     }
 
     public static void onReceiveC2SCommunicationIDChangePacket(
@@ -194,5 +201,27 @@ public class AsyncAndEvents {
             WheatSync.databaseHelper.processUpdateInventoryQueue();
             return true;
         }, WheatSync.asyncExecutor);
+    }
+
+    public static void onPlayerDataSave(NbtCompound nbt) {
+        CompletableFuture.supplyAsync(() -> {
+            NbtCompound nbt2 = nbt.copy();
+            WheatSync.databaseHelper.updatePlayerData(nbt2.getUuid("UUID"), nbt2.toString());
+            return true;
+        }, WheatSync.asyncExecutor);
+    }
+
+    public static void onPlayerDataLoad(NbtCompound nbt) throws CommandSyntaxException {
+        UUID playerUUID = nbt.getUuid("UUID");
+
+        if (!WheatSync.databaseHelper.ifPlayerDataExists(playerUUID)) {
+            NbtCompound nbt2 = nbt.copy();
+            //remove blacklisted elements
+            for (int i = 0; i < WheatSync.CONFIG.PlayerSyncBlackList.size(); i++) {
+                nbt2.remove(WheatSync.CONFIG.PlayerSyncBlackList.get(i));
+            }
+            WheatSync.databaseHelper.createPlayerData(playerUUID, nbt2.toString());
+        }
+        nbt.copyFrom(StringNbtReader.parse(WheatSync.databaseHelper.readPlayerData(playerUUID)));
     }
 }

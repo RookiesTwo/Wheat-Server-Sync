@@ -15,14 +15,88 @@ public class DatabaseHelper {
             WheatSync.LOGGER.info("Connecting to the database...");
             String url = "jdbc:mysql://" + WheatSync.CONFIG.MySQLAddress + ":" + WheatSync.CONFIG.MySQLPort + "/" + WheatSync.CONFIG.MySQLDatabase;
             this.connection = DriverManager.getConnection(url, WheatSync.CONFIG.MySQLAccount, WheatSync.CONFIG.Password);
-            ensureTableExists();
+            ensureSLITableExists();
             ensureColumnExists(WheatSync.CONFIG.ServerName);
+            ensurePlayerTableExists();
         } catch (SQLException e) {
             WheatSync.LOGGER.error("Failed to connect to the database. Details:\n{}", e.getMessage());
         }
     }
 
-    private void ensureTableExists() {
+    private void ensurePlayerTableExists() {
+        try (Statement stmt = connection.createStatement()) {
+            ResultSet resultSet = stmt.executeQuery(
+                    "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" +
+                            WheatSync.CONFIG.MySQLDatabase +
+                            "' AND TABLE_NAME = 'player_data';"
+            );
+            if (!resultSet.next() || resultSet.getInt(1) == 0) {
+                // Table does not exist, create it
+                String createTableSQL =
+                        "CREATE TABLE `player_data` (" +
+                                "  `player_uuid` VARCHAR(36) NOT NULL," +
+                                "  `data` MEDIUMTEXT," +
+                                "  PRIMARY KEY (`player_uuid`)" +
+                                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+                stmt.executeUpdate(createTableSQL);
+                WheatSync.LOGGER.info("Table `player_data` created successfully.");
+            }
+        } catch (SQLException e) {
+            WheatSync.LOGGER.error("Failed to create table. Details:\n{}", e.getMessage());
+        }
+    }
+
+    public void createPlayerData(UUID playerUUID, String playerData) {
+        String sql = "INSERT INTO player_data (player_uuid, data) VALUES (?, ?)";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, playerUUID.toString());
+            pstmt.setString(2, playerData);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            WheatSync.LOGGER.error("Failed to create player data. Details:\n{}", e.getMessage());
+        }
+    }
+
+    public String readPlayerData(UUID playerUUID) {
+        String sql = "SELECT data FROM player_data WHERE player_uuid = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, playerUUID.toString());
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("data");
+            }
+        } catch (SQLException e) {
+            WheatSync.LOGGER.error("Failed to read player data. Details:\n{}", e.getMessage());
+        }
+        return null;
+    }
+
+    public void updatePlayerData(UUID playerUUID, String newData) {
+        String sql = "UPDATE player_data SET data = ? WHERE player_uuid = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, newData);
+            pstmt.setString(2, playerUUID.toString());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            WheatSync.LOGGER.error("Failed to update player data. Details:\n{}", e.getMessage());
+        }
+    }
+
+    public boolean ifPlayerDataExists(UUID playerUUID) {
+        String sql = "SELECT COUNT(*) FROM player_data WHERE player_uuid = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, playerUUID.toString());
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            WheatSync.LOGGER.error("Failed to check if player data exists. Details:\n{}", e.getMessage());
+        }
+        return false;
+    }
+
+    private void ensureSLITableExists() {
         try (Statement stmt = connection.createStatement()) {
             ResultSet resultSet = stmt.executeQuery(
                     "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" +
@@ -43,7 +117,7 @@ public class DatabaseHelper {
                 WheatSync.LOGGER.info("Table `sli_contents` created successfully.");
             }
         } catch (SQLException e) {
-            WheatSync.LOGGER.error("Failed to create table exists. Details:\n{}", e.getMessage());
+            WheatSync.LOGGER.error("Failed to create table. Details:\n{}", e.getMessage());
         }
     }
 

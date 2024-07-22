@@ -23,6 +23,10 @@ public class SLICache {
 
     public static final String emptyInventory = serializeInventory(DefaultedList.ofSize(StandardLogisticsInterfaceEntity.inventorySize, ItemStack.EMPTY));
 
+    public SLICache() {
+        this.cache = new ConcurrentHashMap<>();
+    }
+
     public static void addUpdateInventoryRequest(UpdateInventoryRequest request) {
         updateInventoryRequestQueue.add(request);
     }
@@ -42,10 +46,6 @@ public class SLICache {
             throw new RuntimeException(e);
         }
         return tempInv;
-    }
-
-    public SLICache() {
-        this.cache = new ConcurrentHashMap<>();
     }
 
     public void addOrUpdateSLICache(UUID playerUUID, int communicationID, DefaultedList<ItemStack> inventory, boolean ifOnOtherServer) {
